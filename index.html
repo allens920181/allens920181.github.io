@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>歌詞編輯器</title>
-     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8221154886029506"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8221154886029506"
      crossorigin="anonymous"></script>
 <style>
         * {
@@ -250,6 +250,12 @@
                         文字底色
                     </label>
                 </div>
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="showInfo" checked onchange="updatePreview()">
+                        顯示右下角資訊
+                    </label>
+                </div>
             </div>
 
             <div class="preview-container" id="preview">
@@ -293,6 +299,7 @@
                 aspectRatio: "比例:",
                 mask: "遮罩:",
                 textBg: "文字底色",
+                showInfo: "顯示右下角資訊",
                 positionTop: "上方",
                 positionMiddle: "中間",
                 positionBottom: "下方",
@@ -318,6 +325,7 @@
                 aspectRatio: "Aspect Ratio:",
                 mask: "Mask:",
                 textBg: "Text Background",
+                showInfo: "Show Bottom-Right Info",
                 positionTop: "Top",
                 positionMiddle: "Middle",
                 positionBottom: "Bottom",
@@ -350,6 +358,7 @@
             labels[3].textContent = messages[lang].aspectRatio;
             labels[4].textContent = messages[lang].mask;
             labels[5].lastChild.textContent = messages[lang].textBg;
+            labels[6].lastChild.textContent = messages[lang].showInfo;
             
             // Update position dropdown
             const positionSelect = document.getElementById('position');
@@ -398,8 +407,7 @@
                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
                         <input
                             type="text"
-                            class="song-input"
-                            value="${song.title}"
+                            class="song-input"value="${song.title}"
                             placeholder="${messages[currentLang].inputSongName}"
                             onchange="handleSongTitleChange(${index}, this.value)"
                         >
@@ -413,7 +421,6 @@
                     <div>
                         <label class="btn btn-outline upload-button">
                             ${messages[currentLang].uploadImage}
-                            <input type="file" accept="image/*" onchange="handleImageUpload(${index}, this)">
                             <input type="file" accept="image/*" onchange="handleImageUpload(${index}, this)">
                         </label>
                         ${song.background ? `<span style="color: #4CAF50; margin-left: 10px;">${messages[currentLang].imageUploaded}</span>` : ''}
@@ -470,6 +477,7 @@
             const aspectRatio = document.getElementById('aspectRatio').value;
             const maskOpacity = document.getElementById('maskOpacity').value;
             const showTextBg = document.getElementById('showTextBg').checked;
+            const showInfo = document.getElementById('showInfo').checked;
 
             // Set aspect ratio
             const [width, height] = aspectRatio.split(':').map(Number);
@@ -500,6 +508,7 @@
                             ${currentSlideData.content.split('\n').join('<br>')}
                         </div>
                     </div>
+                    ${showInfo ? `
                     <div style="
                         position: absolute;
                         bottom: 8px;
@@ -512,6 +521,7 @@
                         <div>${currentSlideData.type}</div>
                         <div>${songs[currentSong].title}</div>
                     </div>
+                    ` : ''}
                 `;
 
                 // Update slide info
@@ -521,34 +531,28 @@
         }
 
         async function exportSlides() {
-            // 檢查是否有歌曲可以匯出
             if (songs.length === 0 || !songs.some(song => song.lyrics.trim())) {
                 alert('請先新增歌曲並輸入歌詞');
                 return;
             }
 
             try {
-                // 建立新的 PPT
                 const pptx = new PptxGenJS();
-                
-                // 設置投影片比例
                 const aspectRatio = document.getElementById('aspectRatio').value;
-                if (aspectRatio === '4:3') {
-                    pptx.layout = 'LAYOUT_4x3';
-                } else {
-                    pptx.layout = 'LAYOUT_WIDE';  // 16:9
-                }
-
-                // 獲取當前的設定
                 const lyricsFontSize = document.getElementById('lyricsFontSize').value;
                 const maskOpacity = document.getElementById('maskOpacity').value;
                 const previewPosition = document.getElementById('position').value;
                 const showTextBg = document.getElementById('showTextBg').checked;
+                const showInfo = document.getElementById('showInfo').checked;
 
-                // 計算PPT中的字體大小（轉換像素為磅值）
+                if (aspectRatio === '4:3') {
+                    pptx.layout = 'LAYOUT_4x3';
+                } else {
+                    pptx.layout = 'LAYOUT_WIDE';
+                }
+
                 const pptFontSize = Math.round(lyricsFontSize * 1.75);
 
-                // 為每首歌建立投影片
                 for (const song of songs) {
                     if (!song.lyrics.trim()) continue;
                     
@@ -556,14 +560,12 @@
                     for (const slideData of slides) {
                         const slide = pptx.addSlide();
                         
-                        // 設置背景
                         if (song.background) {
                             slide.background = { data: song.background };
                         } else {
                             slide.background = { color: '000000' };
                         }
 
-                        // 添加遮罩
                         if (Number(maskOpacity) > 0) {
                             slide.addShape('rect', {
                                 x: '0%',
@@ -574,28 +576,24 @@
                             });
                         }
 
-                        // 設置文字位置
                         let textY;
                         switch (previewPosition) {
-                            case 'flex-start': textY = '5%'; break;  // 從 10% 改為 5%
+                            case 'flex-start': textY = '5%'; break;
                             case 'flex-end': textY = '60%'; break;
                             default: textY = '35%';
                         }
 
-                        // 添加文字背景
                         if (showTextBg) {
                             slide.addShape('rect', {
                                 x: '5%',
                                 y: textY,
                                 w: '90%',
-                                h: '40%',  // 增加高度到 40%
+                                h: '40%',
                                 fill: { color: '000000', transparency: 50 }
                             });
                         }
 
-                        // 添加歌詞
                         const lines = slideData.content.split('\n');
-                        // 將每行歌詞轉換為正確的格式
                         const formattedLines = lines.map(line => ({
                             text: line,
                             options: {
@@ -615,43 +613,42 @@
                             fontFace: 'Arial'
                         });
 
-                        // 添加資訊區文字，背景跟隨文字底色設定
-                        const info = [
-                            { 
-                                text: slideData.type,
-                                options: { 
-                                    fontSize: 15,
-                                    bold: true,
-                                    color: 'FFFFFF',
-                                    breakLine: true
+                        if (showInfo) {
+                            const info = [
+                                { 
+                                    text: slideData.type,
+                                    options: { 
+                                        fontSize: 15,
+                                        bold: true,
+                                        color: 'FFFFFF',
+                                        breakLine: true
+                                    }
+                                },
+                                { 
+                                    text: song.title,
+                                    options: { 
+                                        fontSize: 15,
+                                        color: 'FFFFFF'
+                                    }
                                 }
-                            },
-                            { 
-                                text: song.title,
-                                options: { 
-                                    fontSize: 15,
-                                    color: 'FFFFFF'
-                                }
-                            }
-                        ];
-                        
-                        slide.addText(info, {
-                            x: '73%',
-                            y: '90%',
-                            w: '25%',
-                            h: '10%',
-                            align: 'right',
-                            fill: showTextBg ? { color: '000000', transparency: 50 } : undefined
-                        });
+                            ];
+                            
+                            slide.addText(info, {
+                                x: '73%',
+                                y: '90%',
+                                w: '25%',
+                                h: '10%',
+                                align: 'right',
+                                fill: showTextBg ? { color: '000000', transparency: 50 } : undefined
+                            });
+                        }
                     }
                 }
 
-                // 使用當前日期時間作為檔名
                 const now = new Date();
                 const timestamp = `${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}`;
                 const fileName = `歌詞投影片_${timestamp}.pptx`;
 
-                // 使用 blob 方式下載
                 const blob = await pptx.write('blob');
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
