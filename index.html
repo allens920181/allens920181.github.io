@@ -1,4 +1,43 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
@@ -44,6 +83,7 @@
         .lang-switch {
             display: flex;
             gap: 8px;
+            align-items: center;
         }
 
         .btn {
@@ -51,8 +91,9 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
             transition: background-color 0.3s;
+            white-space: nowrap;
         }
 
         .btn-primary {
@@ -65,25 +106,22 @@
             border: 1px solid #ccc;
         }
 
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-
         .card {
             background-color: white;
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 20px;
+            position: relative;
         }
 
         .song-input {
-            width: 100%;
+            width: calc(100% - 28px);
             padding: 8px;
             margin-bottom: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            font-size: 14px;
         }
 
         .lyrics-textarea {
@@ -94,6 +132,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             resize: vertical;
+            font-size: 14px;
         }
 
         .preview-container {
@@ -122,6 +161,20 @@
             color: white;
             padding: 20px;
         }
+        
+        .preview-text-container {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .preview-text {
+            margin: 0 5%;
+            padding: 16px;
+        }
 
         .preview-controls {
             margin-top: 20px;
@@ -138,9 +191,29 @@
             margin-bottom: 10px;
         }
 
+        .control-group label {
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
         .upload-button {
             position: relative;
             overflow: hidden;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            height: 34px;
+            width: 120px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            padding: 0 8px;
+            gap: 6px;
+        }
+
+        .upload-button:hover {
+            background-color: #e9ecef;
         }
 
         .upload-button input[type="file"] {
@@ -151,6 +224,81 @@
             min-height: 100%;
             opacity: 0;
             cursor: pointer;
+        }
+
+        .upload-icon {
+            width: 20px;
+            height: 20px;
+            color: #666;
+        }
+
+        .upload-text {
+            font-size: 12px;
+            color: #333;
+            white-space: nowrap;
+        }
+
+        .thumbnail {
+            width: 20px;
+            height: 20px;
+            object-fit: cover;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .action-icon {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s;
+        }
+
+        .action-icon:hover {
+            color: #4CAF50;
+        }
+
+        .song-delete-icon {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .paragraph-action-icon {
+            position: static;
+        }
+
+        .image-menu {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 10;
+            display: none;
+            flex-direction: column;
+            padding: 4px;
+        }
+
+        .image-menu-item {
+            padding: 4px 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .image-menu-item:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .image-menu-item svg {
+            width: 16px;
+            height: 16px;
         }
 
         .footer {
@@ -179,6 +327,7 @@
 
         .author-email {
             margin-bottom: 8px;
+            font-size: 12px;
         }
 
         .author-email a {
@@ -192,8 +341,303 @@
 
         .author-description {
             color: #666;
+            font-size: 12px;
         }
-    </style>
+
+        /* 標籤選單 */
+        .tag-menu {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 10;
+            display: none;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .tag-menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-align: center;
+            display: inline-block;
+            font-size: 12px;
+        }
+
+        .tag-menu-item:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        /* 段落區塊樣式 */
+        .paragraph-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 10px;
+            cursor: move;
+            position: relative;
+            display: flex;
+            align-items: center;
+            height: 60px;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+
+        .paragraph-block:hover {
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+        }
+
+        .paragraph-block.dragging {
+            opacity: 0.5;
+        }
+
+        .paragraph-content {
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .paragraph-header {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .paragraph-preview {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .paragraph-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .drag-handle {
+            margin-right: 8px;
+            cursor: pointer;
+            color: #666;
+            flex-shrink: 0;
+            transition: transform 0.2s, color 0.2s;
+        }
+
+        .drag-handle:hover {
+            transform: scale(1.2);
+            color: #4CAF50;
+        }
+
+        .move-menu {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 10;
+            display: none;
+            flex-direction: column;
+            padding: 4px;
+        }
+
+        .move-menu-item {
+            padding: 4px 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .move-menu-item:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .move-menu-item svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* 滑動開關樣式（文字/段落） */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            flex: 1;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        .slider.active {
+            background-color: #4CAF50;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 50%;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 4px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(calc(100% - 8px));
+        }
+
+        .toggle-label {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50%;
+            text-align: center;
+            font-size: 12px;
+            transition: opacity 0.3s;
+        }
+
+        .toggle-label.text {
+            left: 4px;
+            color: #ccc;
+            opacity: 1;
+        }
+
+        .toggle-label.paragraph {
+            right: 4px;
+            color: #4CAF50;
+            opacity: 0;
+        }
+
+        input:checked + .slider .text {
+            opacity: 0;
+        }
+
+        input:checked + .slider .paragraph {
+            opacity: 1;
+        }
+
+        /* 語言切換滑動開關 */
+        .lang-toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .lang-toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .lang-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        .lang-slider.active {
+            background-color: #4CAF50;
+        }
+
+        .lang-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 50%;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 4px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        input:checked + .lang-slider:before {
+            transform: translateX(calc(100% - 8px));
+        }
+
+        .lang-label {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50%;
+            text-align: center;
+            font-size: 12px;
+            transition: opacity 0.3s;
+            color: #4CAF50;
+        }
+
+        .lang-label.ch {
+            left: 4px;
+            opacity: 1;
+        }
+
+        .lang-label.en {
+            right: 4px;
+            opacity: 0;
+        }
+
+        input:checked + .lang-slider .ch {
+            opacity: 0;
+        }
+
+        input:checked + .lang-slider .en {
+            opacity: 1;
+        }
+
+        /* 按鈕容器 */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            width: 100%;
+            align-items: center;
+        }
+
+        /* 拖曳插入線 */
+        .drop-indicator {
+            height: 2px;
+            background-color: #4CAF50;
+            margin: 5px 0;
+            width: 100%;
+        }
+</style>
 </head>
 <body>
     <div class="container">
@@ -201,13 +645,18 @@
             <div class="header">
                 <h1>歌詞編輯器</h1>
                 <div class="lang-switch">
-                    <button class="btn btn-outline" onclick="switchLanguage('zh')">中文</button>
-                    <button class="btn btn-outline" onclick="switchLanguage('en')">English</button>
+                    <label class="lang-toggle-switch">
+                        <input type="checkbox" onchange="switchLanguage(this.checked ? 'en' : 'zh')">
+                        <span class="lang-slider">
+                            <span class="lang-label ch">CH</span>
+                            <span class="lang-label en">EN</span>
+                        </span>
+                    </label>
                 </div>
             </div>
 
             <div id="songs-container"></div>
-            <button class="btn btn-primary" onclick="addNewSong()">新增下一首歌</button>
+            <button class="btn btn-primary" onclick="addNewSong()" style="width: 100%; margin-top: 10px; font-size: 18px;">+</button>
         </div>
 
         <div class="preview-section">
@@ -228,9 +677,9 @@
                 <div class="control-group">
                     <label>歌詞位置:</label>
                     <select id="position" onchange="updatePreview()">
-                        <option value="flex-start">上方</option>
-                        <option value="center" selected>中間</option>
-                        <option value="flex-end">下方</option>
+                        <option value="flex-start">上方 (T)</option>
+                        <option value="center" selected>中間 (M)</option>
+                        <option value="flex-end">下方 (B)</option>
                     </select>
                 </div>
                 <div class="control-group">
@@ -270,6 +719,15 @@
         </div>
     </div>
 
+    <!-- 標籤選單 (隱藏) -->
+    <div id="tagMenu" class="tag-menu"></div>
+
+    <!-- 移動選單 (隱藏) -->
+    <div id="moveMenu" class="move-menu"></div>
+
+    <!-- 圖片操作選單 (隱藏) -->
+    <div id="imageMenu" class="image-menu"></div>
+
     <footer class="footer">
         <div class="footer-content">
             <div class="author-info">
@@ -288,9 +746,8 @@
                 preview: "投影片預覽",
                 inputSongName: "輸入歌名...",
                 delete: "✕",
-                inputLyrics: "使用 #主歌# 歌詞... #副歌# 歌詞... 的格式輸入歌詞",
-                uploadImage: "上傳背景圖片",
-                imageUploaded: "已上傳背景圖片",
+                inputLyrics: "使用 #主歌 歌詞... #副歌 歌詞... 的格式輸入歌詞，空行自動分頁",
+                uploadImage: "背景圖片",
                 addNewSong: "新增下一首歌",
                 export: "導出投影片",
                 lyricsSize: "歌詞大小:",
@@ -300,57 +757,86 @@
                 mask: "遮罩:",
                 textBg: "文字底色",
                 showInfo: "顯示右下角資訊",
-                positionTop: "上方",
-                positionMiddle: "中間",
-                positionBottom: "下方",
+                positionTop: "上方 (T)",
+                positionMiddle: "中間 (M)",
+                positionBottom: "下方 (B)",
                 prevSlide: "上一頁",
                 nextSlide: "下一頁",
                 song: "第",
                 songUnit: "首歌",
-                authorDesc: "我是一位宣教士，歡迎進一步與我聯繫與奉獻給我"
+                authorDesc: "我是一位宣教士，歡迎進一步與我聯繫與奉獻給我",
+                tagVerse: "主歌",
+                tagChorus: "副歌",
+                tagBridge: "橋段",
+                tagInterlude: "過門",
+                tagOutro: "結尾",
+                convertToParagraphs: "段落",
+                convertToText: "文字",
+                copyParagraph: "複製",
+                deleteParagraph: "刪除",
+                moveUp: "上移",
+                moveDown: "下移",
+                replaceImage: "替換",
+                deleteImage: "刪除"
             },
             en: {
-                title: "Lyrics Slideshow",
+                title: "Lyrics Slides",
                 preview: "Slide Preview",
-                inputSongName: "Enter song name...",
+                inputSongName: "Song name...",
                 delete: "✕",
-                inputLyrics: "Enter lyrics using format: #Verse# lyrics... #Chorus# lyrics...",
-                uploadImage: "Upload Background",
-                imageUploaded: "Background uploaded",
-                addNewSong: "Add New Song",
+                inputLyrics: "Use #Verse lyrics... #Chorus lyrics... format, empty line for new page",
+                uploadImage: "Background",
+                addNewSong: "Add Song",
                 export: "Export Slides",
                 lyricsSize: "Lyrics Size:",
                 lyricsLineHeight: "Line Height:",
                 lyricsPosition: "Position:",
-                aspectRatio: "Aspect Ratio:",
+                aspectRatio: "Ratio:",
                 mask: "Mask:",
                 textBg: "Text Background",
                 showInfo: "Show Bottom-Right Info",
-                positionTop: "Top",
-                positionMiddle: "Middle",
-                positionBottom: "Bottom",
+                positionTop: "Top (T)",
+                positionMiddle: "Middle (M)",
+                positionBottom: "Bottom (B)",
                 prevSlide: "Previous",
                 nextSlide: "Next",
                 song: "Song",
                 songUnit: "",
-                authorDesc: "I am a missionary. Welcome to contact me further and contribute to my ministry"
+                authorDesc: "I am a missionary. Contact me to contribute to my ministry",
+                tagVerse: "Verse",
+                tagChorus: "Chorus",
+                tagBridge: "Bridge",
+                tagInterlude: "Interlude",
+                tagOutro: "Outro",
+                convertToParagraphs: "Paragraph",
+                convertToText: "Text",
+                copyParagraph: "Copy",
+                deleteParagraph: "Delete",
+                moveUp: "Move Up",
+                moveDown: "Move Down",
+                replaceImage: "Replace",
+                deleteImage: "Delete"
             }
         };
 
         let currentLang = 'zh';
-        let songs = [{ title: '', lyrics: '', background: null }];
+        let songs = [{ title: '', lyrics: '', background: null, isParagraphMode: false, paragraphs: [] }];
         let currentSong = 0;
         let currentSlide = 0;
+        let activeTextarea = null;
+        let lastCursorPosition = 0;
+        let activeMoveMenu = null;
+        let activeMoveMenuIndices = null;
+        let activeImageMenu = null;
+        let activeImageMenuIndex = null;
 
         function switchLanguage(lang) {
             currentLang = lang;
             document.title = messages[lang].title;
             document.querySelector('.header h1').textContent = messages[lang].title;
             document.querySelector('.preview-header h2').textContent = messages[lang].preview;
-            document.querySelector('.editor-section .btn-primary').textContent = messages[lang].addNewSong;
             document.querySelector('.preview-header .btn-primary').textContent = messages[lang].export;
             
-            // Update labels
             const labels = document.querySelectorAll('.control-group label');
             labels[0].textContent = messages[lang].lyricsSize;
             labels[1].textContent = messages[lang].lyricsLineHeight;
@@ -360,40 +846,303 @@
             labels[5].lastChild.textContent = messages[lang].textBg;
             labels[6].lastChild.textContent = messages[lang].showInfo;
             
-            // Update position dropdown
             const positionSelect = document.getElementById('position');
             positionSelect.options[0].text = messages[lang].positionTop;
             positionSelect.options[1].text = messages[lang].positionMiddle;
             positionSelect.options[2].text = messages[lang].positionBottom;
             
-            // Update buttons
             document.getElementById('prevButton').textContent = messages[lang].prevSlide;
             document.getElementById('nextButton').textContent = messages[lang].nextSlide;
             
-            // Update author description
             document.querySelector('.author-description').textContent = messages[lang].authorDesc;
             
-            // Update all song cards
             updateSongsContainer();
-            // Update preview
             updatePreview();
         }
 
         function parseLyrics(lyrics) {
-            const sections = lyrics.split('#').filter(Boolean);
-            const slides = [];
+            const sections = [];
+            let currentType = '';
+            let currentContent = '';
             
-            for (let i = 0; i < sections.length; i += 2) {
-                if (sections[i] && sections[i + 1]) {
-                    const type = sections[i].trim();
-                    const content = sections[i + 1].trim();
-                    if (content) {
-                        slides.push({ type, content });
+            const lines = lyrics.split('\n');
+            let i = 0;
+            
+            while (i < lines.length) {
+                const line = lines[i].trim();
+                
+                if (line.startsWith('#')) {
+                    if (currentType && currentContent.trim()) {
+                        const contentParts = currentContent.split('\n\n').filter(part => part.trim());
+                        for (const part of contentParts) {
+                            sections.push({ type: currentType, content: part.trim() });
+                        }
                     }
+                    
+                    currentType = line.substring(1).trim();
+                    currentContent = '';
+                    i++;
+                } else if (currentType) {
+                    currentContent += (currentContent ? '\n' : '') + lines[i];
+                    i++;
+                } else {
+                    i++;
                 }
             }
             
-            return slides;
+            if (currentType && currentContent.trim()) {
+                const contentParts = currentContent.split('\n\n').filter(part => part.trim());
+                for (const part of contentParts) {
+                    sections.push({ type: currentType, content: part.trim() });
+                }
+            }
+            
+            return sections;
+        }
+
+        function parseParagraphs(lyrics) {
+            const paragraphs = [];
+            let currentType = '';
+            let currentContent = '';
+            
+            const lines = lyrics.split('\n');
+            let i = 0;
+            
+            while (i < lines.length) {
+                const line = lines[i].trim();
+                
+                if (line.startsWith('#')) {
+                    if (currentType && currentContent.trim()) {
+                        paragraphs.push({ type: currentType, content: currentContent.trim() });
+                    }
+                    
+                    currentType = line.substring(1).trim();
+                    currentContent = '';
+                    i++;
+                } else if (currentType) {
+                    currentContent += (currentContent ? '\n' : '') + lines[i];
+                    i++;
+                } else {
+                    i++;
+                }
+            }
+            
+            if (currentType && currentContent.trim()) {
+                paragraphs.push({ type: currentType, content: currentContent.trim() });
+            }
+            
+            return paragraphs;
+        }
+
+        function getFirstLine(content) {
+            const lines = content.split('\n').filter(line => line.trim());
+            return lines[0] || '';
+        }
+
+        function convertToParagraphs(songIndex) {
+            const song = songs[songIndex];
+            song.isParagraphMode = true;
+            song.paragraphs = parseParagraphs(song.lyrics);
+            updateSongsContainer();
+            updatePreview();
+        }
+
+        function convertToText(songIndex) {
+            const song = songs[songIndex];
+            song.isParagraphMode = false;
+            if (song.paragraphs.length > 0) {
+                song.lyrics = song.paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n');
+            }
+            song.paragraphs = [];
+            updateSongsContainer();
+            updatePreview();
+        }
+
+        function copyParagraph(songIndex, paraIndex) {
+            const song = songs[songIndex];
+            const paragraph = song.paragraphs[paraIndex];
+            song.paragraphs.splice(paraIndex + 1, 0, { ...paragraph });
+            updateSongsContainer();
+            updatePreview();
+        }
+
+        function deleteParagraph(songIndex, paraIndex) {
+            const song = songs[songIndex];
+            if (song.paragraphs.length <= 1) {
+                alert(messages[currentLang].inputLyrics);
+                return;
+            }
+            song.paragraphs.splice(paraIndex, 1);
+            updateSongsContainer();
+            updatePreview();
+        }
+
+        function moveParagraphUp(songIndex, paraIndex) {
+            if (paraIndex === 0) return;
+            const song = songs[songIndex];
+            const [paragraph] = song.paragraphs.splice(paraIndex, 1);
+            song.paragraphs.splice(paraIndex - 1, 0, paragraph);
+            updateSongsContainer();
+            updatePreview();
+            if (activeMoveMenu && activeMoveMenuIndices.songIndex === songIndex) {
+                updateMoveMenuPosition(songIndex, paraIndex - 1);
+            }
+        }
+
+        function moveParagraphDown(songIndex, paraIndex) {
+            const song = songs[songIndex];
+            if (paraIndex === song.paragraphs.length - 1) return;
+            const [paragraph] = song.paragraphs.splice(paraIndex, 1);
+            song.paragraphs.splice(paraIndex + 1, 0, paragraph);
+            updateSongsContainer();
+            updatePreview();
+            if (activeMoveMenu && activeMoveMenuIndices.songIndex === songIndex) {
+                updateMoveMenuPosition(songIndex, paraIndex + 1);
+            }
+        }
+
+        function showMoveMenu(event, songIndex, paraIndex) {
+            const moveMenu = document.getElementById('moveMenu');
+            const dragHandle = event.currentTarget;
+            
+            if (activeMoveMenu === dragHandle) {
+                hideMoveMenu();
+                return;
+            }
+
+            moveMenu.innerHTML = `
+                <div class="move-menu-item" onclick="moveParagraphUp(${songIndex}, ${paraIndex})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12l7-7 7 7"/>
+                    </svg>
+                    ${messages[currentLang].moveUp}
+                </div>
+                <div class="move-menu-item" onclick="moveParagraphDown(${songIndex}, ${paraIndex})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12l7 7 7-7"/>
+                    </svg>
+                    ${messages[currentLang].moveDown}
+                </div>
+            `;
+            
+            const rect = dragHandle.getBoundingClientRect();
+            moveMenu.style.top = `${rect.bottom + 5}px`;
+            moveMenu.style.left = `${rect.left}px`;
+            moveMenu.style.display = 'flex';
+            
+            activeMoveMenu = dragHandle;
+            activeMoveMenuIndices = { songIndex, paraIndex };
+            document.addEventListener('click', hideMoveMenuOnClickOutside);
+        }
+
+        function updateMoveMenuPosition(songIndex, paraIndex) {
+            const moveMenu = document.getElementById('moveMenu');
+            const dragHandle = document.querySelector(`.paragraphs-container .paragraph-block:nth-child(${paraIndex + 1}) .drag-handle`);
+            if (!dragHandle) {
+                hideMoveMenu();
+                return;
+            }
+            const rect = dragHandle.getBoundingClientRect();
+            moveMenu.style.top = `${rect.bottom + 5}px`;
+            moveMenu.style.left = `${rect.left}px`;
+            moveMenu.innerHTML = `
+                <div class="move-menu-item" onclick="moveParagraphUp(${songIndex}, ${paraIndex})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12l7-7 7 7"/>
+                    </svg>
+                    ${messages[currentLang].moveUp}
+                </div>
+                <div class="move-menu-item" onclick="moveParagraphDown(${songIndex}, ${paraIndex})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12l7 7 7-7"/>
+                    </svg>
+                    ${messages[currentLang].moveDown}
+                </div>
+            `;
+            activeMoveMenu = dragHandle;
+            activeMoveMenuIndices = { songIndex, paraIndex };
+        }
+
+        function hideMoveMenuOnClickOutside(event) {
+            const moveMenu = document.getElementById('moveMenu');
+            if (!moveMenu.contains(event.target) && !event.target.classList.contains('drag-handle')) {
+                hideMoveMenu();
+            }
+        }
+
+        function hideMoveMenu() {
+            const moveMenu = document.getElementById('moveMenu');
+            moveMenu.style.display = 'none';
+            document.removeEventListener('click', hideMoveMenuOnClickOutside);
+            activeMoveMenu = null;
+            activeMoveMenuIndices = null;
+        }
+
+        function showImageMenu(event, songIndex) {
+            const imageMenu = document.getElementById('imageMenu');
+            const thumbnail = event.currentTarget;
+            
+            if (activeImageMenu === thumbnail) {
+                hideImageMenu();
+                return;
+            }
+
+            imageMenu.innerHTML = `
+                <div class="image-menu-item" onclick="replaceImage(${songIndex})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    ${messages[currentLang].replaceImage}
+                </div>
+                <div class="image-menu-item" onclick="deleteImage(${songIndex})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    ${messages[currentLang].deleteImage}
+                </div>
+            `;
+            
+            const rect = thumbnail.getBoundingClientRect();
+            imageMenu.style.top = `${rect.bottom + 5}px`;
+            imageMenu.style.left = `${rect.left}px`;
+            imageMenu.style.display = 'flex';
+            
+            activeImageMenu = thumbnail;
+            activeImageMenuIndex = songIndex;
+            document.addEventListener('click', hideImageMenuOnClickOutside);
+        }
+
+        function hideImageMenuOnClickOutside(event) {
+            const imageMenu = document.getElementById('imageMenu');
+            if (!imageMenu.contains(event.target) && !event.target.classList.contains('thumbnail')) {
+                hideImageMenu();
+            }
+        }
+
+        function hideImageMenu() {
+            const imageMenu = document.getElementById('imageMenu');
+            imageMenu.style.display = 'none';
+            document.removeEventListener('click', hideImageMenuOnClickOutside);
+            activeImageMenu = null;
+            activeImageMenuIndex = null;
+        }
+
+        function replaceImage(songIndex) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = () => handleImageUpload(songIndex, input);
+            input.click();
+            hideImageMenu();
+        }
+
+        function deleteImage(songIndex) {
+            songs[songIndex].background = null;
+            updateSongsContainer();
+            updatePreview();
+            hideImageMenu();
         }
 
         function updateSongsContainer() {
@@ -403,35 +1152,258 @@
             songs.forEach((song, index) => {
                 const songCard = document.createElement('div');
                 songCard.className = 'card';
+                let lyricsContent = '';
+                
+                if (song.isParagraphMode) {
+                    lyricsContent = `
+                        <div class="paragraphs-container" ondragover="allowDrop(event)" ondrop="dropParagraph(event, ${index})">
+                            ${song.paragraphs.map((para, paraIndex) => `
+                                <div class="paragraph-block" draggable="true" ondragstart="dragParagraph(event, ${index}, ${paraIndex})">
+                                    <svg class="drag-handle" onclick="showMoveMenu(event, ${index}, ${paraIndex})" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 6h18M3 12h18M3 18h18"/>
+                                    </svg>
+                                    <div class="paragraph-content">
+                                        <div class="paragraph-header">${para.type}</div>
+                                        <div class="paragraph-preview">${getFirstLine(para.content)}</div>
+                                    </div>
+                                    <div class="paragraph-actions">
+                                        <svg class="action-icon paragraph-action-icon" onclick="copyParagraph(${index}, ${paraIndex})" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                                        </svg>
+                                        <svg class="action-icon paragraph-action-icon" onclick="deleteParagraph(${index}, ${paraIndex})" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    lyricsContent = `
+                        <textarea
+                            class="lyrics-textarea"
+                            placeholder="${messages[currentLang].inputLyrics}"
+                            onchange="handleLyricsChange(${index}, this.value)"
+                            oninput="handleTextareaInput(event, this, ${index})"
+                            onkeydown="handleTextareaKeydown(event, this)"
+                            onclick="setActiveTextarea(this, ${index})"
+                        >${song.lyrics}</textarea>
+                    `;
+                }
+
+                const uploadButtonContent = song.background
+                    ? `
+                        <img src="${song.background}" class="thumbnail" alt="Background thumbnail" onclick="showImageMenu(event, ${index})">
+                    `
+                    : `
+                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        <span class="upload-text">${messages[currentLang].uploadImage}</span>
+                    `;
+
                 songCard.innerHTML = `
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px; position: relative;">
                         <input
                             type="text"
-                            class="song-input"value="${song.title}"
+                            class="song-input"
+                            value="${song.title}"
                             placeholder="${messages[currentLang].inputSongName}"
                             onchange="handleSongTitleChange(${index}, this.value)"
                         >
-                        <button class="btn btn-danger" onclick="removeSong(${index})" style="width: 30px; height: 30px; padding: 0; line-height: 30px;">${messages[currentLang].delete}</button>
+                        <svg class="action-icon song-delete-icon" onclick="removeSong(${index})" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
                     </div>
-                    <textarea
-                        class="lyrics-textarea"
-                        placeholder="${messages[currentLang].inputLyrics}"
-                        onchange="handleLyricsChange(${index}, this.value)"
-                    >${song.lyrics}</textarea>
-                    <div>
-                        <label class="btn btn-outline upload-button">
-                            ${messages[currentLang].uploadImage}
+                    <div class="button-group">
+                        <label class="toggle-switch">
+                            <input type="checkbox" ${song.isParagraphMode ? 'checked' : ''} onchange="this.checked ? convertToParagraphs(${index}) : convertToText(${index})">
+                            <span class="slider ${song.isParagraphMode ? 'active' : ''}">
+                                <span class="toggle-label text">${messages[currentLang].convertToText}</span>
+                                <span class="toggle-label paragraph">${messages[currentLang].convertToParagraphs}</span>
+                            </span>
+                        </label>
+                        <label class="upload-button">
+                            ${uploadButtonContent}
                             <input type="file" accept="image/*" onchange="handleImageUpload(${index}, this)">
                         </label>
-                        ${song.background ? `<span style="color: #4CAF50; margin-left: 10px;">${messages[currentLang].imageUploaded}</span>` : ''}
                     </div>
+                    ${lyricsContent}
                 `;
                 container.appendChild(songCard);
             });
         }
 
+        function setActiveTextarea(textarea, index) {
+            activeTextarea = textarea;
+            lastCursorPosition = textarea.selectionStart;
+        }
+
+        function handleTextareaKeydown(event, textarea) {
+            if (event.key === 'Tab' && document.getElementById('tagMenu').style.display === 'block') {
+                event.preventDefault();
+            }
+        }
+
+        function handleTextareaInput(event, textarea, songIndex) {
+            const curPos = textarea.selectionStart;
+            const text = textarea.value;
+            
+            lastCursorPosition = curPos;
+            
+            if (event.data === '#') {
+                showTagMenu(textarea, songIndex);
+            } else {
+                if (event.key === 'Escape') {
+                    hideTagMenu();
+                }
+            }
+        }
+
+        function showTagMenu(textarea, songIndex) {
+            const tagMenu = document.getElementById('tagMenu');
+            
+            tagMenu.innerHTML = `
+                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagVerse}', ${songIndex})">${messages[currentLang].tagVerse}</div>
+                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagChorus}', ${songIndex})">${messages[currentLang].tagChorus}</div>
+                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagBridge}', ${songIndex})">${messages[currentLang].tagBridge}</div>
+                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagInterlude}', ${songIndex})">${messages[currentLang].tagInterlude}</div>
+                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagOutro}', ${songIndex})">${messages[currentLang].tagOutro}</div>
+            `;
+            
+            const rect = textarea.getBoundingClientRect();
+            
+            tagMenu.style.top = `${rect.bottom + 5}px`;
+            tagMenu.style.left = `${rect.left}px`;
+            tagMenu.style.width = `${rect.width}px`;
+            tagMenu.style.display = 'block';
+            
+            document.addEventListener('click', hideTagMenuOnClickOutside);
+            
+            activeTextarea = textarea;
+        }
+
+        function hideTagMenuOnClickOutside(event) {
+            const tagMenu = document.getElementById('tagMenu');
+            if (!tagMenu.contains(event.target) && event.target !== activeTextarea) {
+                hideTagMenu();
+            }
+        }
+
+        function hideTagMenu() {
+            const tagMenu = document.getElementById('tagMenu');
+            tagMenu.style.display = 'none';
+            document.removeEventListener('click', hideTagMenuOnClickOutside);
+        }
+
+        function insertTag(tagName, songIndex) {
+            if (!activeTextarea) return;
+            
+            const curPos = lastCursorPosition;
+            const text = activeTextarea.value;
+            
+            const scrollTop = activeTextarea.scrollTop;
+            
+            const newText = text.substring(0, curPos - 1) + '#' + tagName + ' ' + text.substring(curPos);
+            
+            activeTextarea.value = newText;
+            
+            songs[songIndex].lyrics = newText;
+            
+            hideTagMenu();
+            
+            const newCursorPos = curPos - 1 + ('#' + tagName + ' ').length;
+            
+            requestAnimationFrame(() => {
+                activeTextarea.scrollTop = scrollTop;
+                activeTextarea.focus();
+                activeTextarea.setSelectionRange(newCursorPos, newCursorPos);
+                activeTextarea.scrollTop = scrollTop;
+                setTimeout(() => {
+                    updatePreview();
+                }, 0);
+            });
+        }
+
+        function dragParagraph(event, songIndex, paraIndex) {
+            event.dataTransfer.setData('text/plain', JSON.stringify({ songIndex, paraIndex }));
+            event.target.classList.add('dragging');
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+            const container = event.currentTarget;
+            const blocks = container.querySelectorAll('.paragraph-block');
+            removeDropIndicators(container);
+
+            const rect = container.getBoundingClientRect();
+            let dropIndex = -1;
+            for (let i = 0; i < blocks.length; i++) {
+                const blockRect = blocks[i].getBoundingClientRect();
+                if (event.clientY < blockRect.top + blockRect.height / 2) {
+                    dropIndex = i;
+                    break;
+                }
+            }
+            if (dropIndex === -1) dropIndex = blocks.length;
+
+            const indicator = document.createElement('div');
+            indicator.className = 'drop-indicator';
+            if (dropIndex === blocks.length) {
+                container.appendChild(indicator);
+            } else {
+                container.insertBefore(indicator, blocks[dropIndex]);
+            }
+        }
+
+        function removeDropIndicators(container) {
+            const indicators = container.querySelectorAll('.drop-indicator');
+            indicators.forEach(ind => ind.remove());
+        }
+
+        function dropParagraph(event, songIndex) {
+            event.preventDefault();
+            const data = JSON.parse(event.dataTransfer.getData('text/plain'));
+            if (data.songIndex !== songIndex) return;
+
+            const draggedIndex = data.paraIndex;
+            const container = event.currentTarget;
+            const blocks = container.querySelectorAll('.paragraph-block');
+            let dropIndex = -1;
+
+            for (let i = 0; i < blocks.length; i++) {
+                const rect = blocks[i].getBoundingClientRect();
+                if (event.clientY < rect.top + rect.height / 2) {
+                    dropIndex = i;
+                    break;
+                }
+            }
+
+            if (dropIndex === -1) dropIndex = blocks.length;
+
+            if (draggedIndex === dropIndex || draggedIndex + 1 === dropIndex) {
+                blocks[draggedIndex].classList.remove('dragging');
+                removeDropIndicators(container);
+                return;
+            }
+
+            const song = songs[songIndex];
+            const [draggedPara] = song.paragraphs.splice(draggedIndex, 1);
+            song.paragraphs.splice(dropIndex > draggedIndex ? dropIndex - 1 : dropIndex, 0, draggedPara);
+
+            removeDropIndicators(container);
+            updateSongsContainer();
+            updatePreview();
+            if (activeMoveMenu && activeMoveMenuIndices.songIndex === songIndex && draggedIndex === activeMoveMenuIndices.paraIndex) {
+                updateMoveMenuPosition(songIndex, dropIndex > draggedIndex ? dropIndex - 1 : dropIndex);
+            }
+        }
+
         function addNewSong() {
-            songs.push({ title: '', lyrics: '', background: null });
+            songs.push({ title: '', lyrics: '', background: null, isParagraphMode: false, paragraphs: [] });
             updateSongsContainer();
         }
 
@@ -451,8 +1423,11 @@
         }
 
         function handleLyricsChange(index, value) {
+            const isFromInsertTag = activeTextarea && activeTextarea === document.activeElement;
             songs[index].lyrics = value;
-            updatePreview();
+            if (!isFromInsertTag || document.getElementById('tagMenu').style.display !== 'block') {
+                updatePreview();
+            }
         }
 
         function handleImageUpload(index, input) {
@@ -479,29 +1454,37 @@
             const showTextBg = document.getElementById('showTextBg').checked;
             const showInfo = document.getElementById('showInfo').checked;
 
-            // Set aspect ratio
             const [width, height] = aspectRatio.split(':').map(Number);
             preview.style.paddingTop = `${(height / width) * 100}%`;
 
-            // Get current slide
-            const slides = parseLyrics(songs[currentSong]?.lyrics || '');
+            const baseWidth = 1280;
+            const previewWidth = preview.offsetWidth;
+            const scaleFactor = previewWidth / baseWidth;
+            
+            const pptFontSize = Math.round(lyricsFontSize * 1.75);
+            const scaledFontSize = pptFontSize * scaleFactor;
+
+            const song = songs[currentSong];
+            let slides = [];
+            if (song.isParagraphMode) {
+                slides = parseLyrics(song.paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n'));
+            } else {
+                slides = parseLyrics(song?.lyrics || '');
+            }
             const currentSlideData = slides[currentSlide];
 
-            if (currentSlideData && songs[currentSong]) {
-                previewContent.style.backgroundImage = songs[currentSong].background 
-                    ? `url(${songs[currentSong].background})`
+            if (currentSlideData && song) {
+                previewContent.style.backgroundImage = song.background 
+                    ? `url(${song.background})`
                     : 'linear-gradient(to right bottom, #4a5568, #2d3748)';
                 previewContent.style.backgroundSize = 'cover';
                 previewContent.style.backgroundPosition = 'center';
 
-                // Update content
                 previewContent.innerHTML = `
                     <div style="position: absolute; inset: 0; background-color: black; opacity: ${maskOpacity};"></div>
-                    <div style="position: relative; z-index: 1; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: ${previewPosition};">
-                        <div style="
-                            margin: 0 5%;
-                            padding: 16px;
-                            font-size: ${lyricsFontSize}px;
+                    <div class="preview-text-container" style="justify-content: ${previewPosition};">
+                        <div class="preview-text" style="
+                            font-size: ${scaledFontSize}px;
                             line-height: ${lyricsLineHeight};
                             ${showTextBg ? 'background-color: rgba(0,0,0,0.5);' : ''}
                         ">
@@ -515,23 +1498,22 @@
                         right: 8px;
                         padding: 4px 6px;
                         border-radius: 4px;
-                        font-size: 18px;
+                        font-size: ${Math.max(14, 18 * scaleFactor)}px;
                         ${showTextBg ? 'background-color: rgba(0,0,0,0.5);' : ''}
                     ">
                         <div>${currentSlideData.type}</div>
-                        <div>${songs[currentSong].title}</div>
+                        <div>${song.title}</div>
                     </div>
                     ` : ''}
                 `;
 
-                // Update slide info
                 document.getElementById('slideInfo').textContent = 
                     `${currentSlide + 1} / ${slides.length} - ${messages[currentLang].song} ${currentSong + 1} ${messages[currentLang].songUnit}`;
             }
         }
 
         async function exportSlides() {
-            if (songs.length === 0 || !songs.some(song => song.lyrics.trim())) {
+            if (songs.length === 0 || !songs.some(song => song.lyrics.trim() || song.paragraphs.length)) {
                 alert('請先新增歌曲並輸入歌詞');
                 return;
             }
@@ -554,9 +1536,14 @@
                 const pptFontSize = Math.round(lyricsFontSize * 1.75);
 
                 for (const song of songs) {
-                    if (!song.lyrics.trim()) continue;
-                    
-                    const slides = parseLyrics(song.lyrics);
+                    let slides = [];
+                    if (song.isParagraphMode) {
+                        slides = parseLyrics(song.paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n'));
+                    } else {
+                        if (!song.lyrics.trim()) continue;
+                        slides = parseLyrics(song.lyrics);
+                    }
+
                     for (const slideData of slides) {
                         const slide = pptx.addSlide();
                         
@@ -576,11 +1563,19 @@
                             });
                         }
 
-                        let textY;
+                        let textY, textValign;
                         switch (previewPosition) {
-                            case 'flex-start': textY = '5%'; break;
-                            case 'flex-end': textY = '60%'; break;
-                            default: textY = '35%';
+                            case 'flex-start': 
+                                textY = '5%'; 
+                                textValign = 'top';
+                                break;
+                            case 'flex-end': 
+                                textY = '60%'; 
+                                textValign = 'bottom';
+                                break;
+                            default: 
+                                textY = '35%';
+                                textValign = 'middle';
                         }
 
                         if (showTextBg) {
@@ -610,6 +1605,7 @@
                             w: '90%',
                             h: '30%',
                             align: 'center',
+                            valign: textValign,
                             fontFace: 'Arial'
                         });
 
@@ -666,7 +1662,13 @@
         }
 
         function nextSlide() {
-            const slides = parseLyrics(songs[currentSong]?.lyrics || '');
+            let slides = [];
+            const song = songs[currentSong];
+            if (song.isParagraphMode) {
+                slides = parseLyrics(song.paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n'));
+            } else {
+                slides = parseLyrics(song?.lyrics || '');
+            }
             if (currentSlide < slides.length - 1) {
                 currentSlide++;
             } else if (currentSong < songs.length - 1) {
@@ -681,13 +1683,29 @@
                 currentSlide--;
             } else if (currentSong > 0) {
                 currentSong--;
-                const slides = parseLyrics(songs[currentSong].lyrics);
+                let slides = [];
+                const song = songs[currentSong];
+                if (song.isParagraphMode) {
+                    slides = parseLyrics(song.paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n'));
+                } else {
+                    slides = parseLyrics(song.lyrics);
+                }
                 currentSlide = slides.length - 1;
             }
             updatePreview();
         }
 
-        // 初始化
+        window.addEventListener('resize', updatePreview);
+        
+        document.addEventListener('click', function(event) {
+            const tagMenu = document.getElementById('tagMenu');
+            if (tagMenu.style.display === 'block' && 
+                !tagMenu.contains(event.target) && 
+                !event.target.classList.contains('lyrics-textarea')) {
+                hideTagMenu();
+            }
+        });
+        
         document.querySelector('.author-description').textContent = messages[currentLang].authorDesc;
         updateSongsContainer();
         updatePreview();
