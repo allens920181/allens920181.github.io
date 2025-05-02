@@ -43,9 +43,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>歌詞編輯器</title>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8221154886029506"
-     crossorigin="anonymous"></script>
-<style>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8221154886029506" crossorigin="anonymous"></script>
+    <style>
         * {
             box-sizing: border-box;
             margin: 0;
@@ -55,7 +54,7 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             line-height: 1.6;
-            padding: 20px;
+            padding: 24px;
             max-width: 1200px;
             margin: 0 auto;
             background-color: #f5f5f5;
@@ -64,7 +63,7 @@
         .container {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 20px;
+            gap: 24px;
         }
 
         @media (min-width: 768px) {
@@ -73,27 +72,40 @@
             }
         }
 
+        .editor-section {
+            display: block !important;
+        }
+
+        .preview-section {
+            display: block;
+        }
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .lang-switch {
             display: flex;
-            gap: 8px;
+            gap: 12px;
             align-items: center;
         }
 
         .btn {
-            padding: 8px 16px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 12px;
-            transition: background-color 0.3s;
+            font-size: 14px;
+            transition: background-color 0.3s, transform 0.2s;
             white-space: nowrap;
+        }
+
+        .btn:hover {
+            background-color: #e6f3e6;
+            transform: translateY(-1px);
         }
 
         .btn-primary {
@@ -109,30 +121,68 @@
         .card {
             background-color: white;
             border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
             position: relative;
         }
 
+        .card.collapsed .song-content {
+            display: none;
+        }
+
+        .song-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: move;
+            user-select: none;
+            position: relative;
+        }
+
+        .song-header.dragging {
+            opacity: 0.5;
+        }
+
         .song-input {
-            width: calc(100% - 28px);
-            padding: 8px;
-            margin-bottom: 10px;
+            flex-grow: 1;
+            padding: 12px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .song-input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        .song-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .lyrics-textarea {
             width: 100%;
             height: 200px;
-            padding: 8px;
-            margin-bottom: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
             resize: vertical;
             font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .lyrics-textarea:focus {
+            border-color: #4CAF50;
+            outline: none;
         }
 
         .preview-container {
@@ -147,7 +197,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .preview-content {
@@ -159,9 +209,9 @@
             display: flex;
             flex-direction: column;
             color: white;
-            padding: 20px;
+            padding: 24px;
         }
-        
+
         .preview-text-container {
             position: relative;
             z-index: 1;
@@ -170,16 +220,16 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         .preview-text {
             margin: 0 5%;
-            padding: 16px;
+            padding: 20px;
         }
 
         .preview-controls {
-            margin-top: 20px;
+            margin-top: 24px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
             justify-content: center;
         }
@@ -187,13 +237,28 @@
         .control-group {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
+            gap: 12px;
+            margin-bottom: 12px;
         }
 
         .control-group label {
-            font-size: 12px;
+            font-size: 14px;
             white-space: nowrap;
+        }
+
+        .control-group input[type="number"],
+        .control-group select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .control-group input[type="number"]:focus,
+        .control-group select:focus {
+            border-color: #4CAF50;
+            outline: none;
         }
 
         .upload-button {
@@ -201,19 +266,19 @@
             overflow: hidden;
             background-color: #f8f9fa;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            height: 34px;
-            width: 120px;
+            border-radius: 8px;
+            height: 32px;
+            width: 32px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
-            padding: 0 8px;
-            gap: 6px;
+            padding: 0;
+            flex-shrink: 0;
         }
 
         .upload-button:hover {
-            background-color: #e9ecef;
+            background-color: #e6f3e6;
         }
 
         .upload-button input[type="file"] {
@@ -227,28 +292,22 @@
         }
 
         .upload-icon {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             color: #666;
         }
 
-        .upload-text {
-            font-size: 12px;
-            color: #333;
-            white-space: nowrap;
-        }
-
         .thumbnail {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             object-fit: cover;
-            border-radius: 2px;
+            border-radius: 4px;
             cursor: pointer;
         }
 
         .action-icon {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             cursor: pointer;
             color: #666;
             transition: color 0.2s;
@@ -258,11 +317,25 @@
             color: #4CAF50;
         }
 
+        .collapse-icon {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            color: #666;
+            transition: transform 0.3s, color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .collapse-icon:hover {
+            color: #4CAF50;
+        }
+
+        .card.collapsed .collapse-icon {
+            transform: rotate(-90deg);
+        }
+
         .song-delete-icon {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
+            margin-left: 12px;
         }
 
         .paragraph-action-icon {
@@ -273,27 +346,27 @@
             position: absolute;
             background-color: white;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             z-index: 10;
             display: none;
             flex-direction: column;
-            padding: 4px;
+            padding: 8px;
         }
 
         .image-menu-item {
-            padding: 4px 8px;
+            padding: 8px 12px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 8px;
             font-size: 12px;
+            border-radius: 6px;
             transition: background-color 0.2s;
         }
 
         .image-menu-item:hover {
-            background-color: #4CAF50;
-            color: white;
+            background-color: #e6f3e6;
         }
 
         .image-menu-item svg {
@@ -301,50 +374,6 @@
             height: 16px;
         }
 
-        .footer {
-            margin-top: 40px;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
-        }
-
-        .footer-content {
-            max-width: 800px;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        .author-info {
-            line-height: 1.6;
-        }
-
-        .author-name {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .author-email {
-            margin-bottom: 8px;
-            font-size: 12px;
-        }
-
-        .author-email a {
-            color: #4CAF50;
-            text-decoration: none;
-        }
-
-        .author-email a:hover {
-            text-decoration: underline;
-        }
-
-        .author-description {
-            color: #666;
-            font-size: 12px;
-        }
-
-        /* 標籤選單 */
         .tag-menu {
             position: absolute;
             background-color: white;
@@ -358,31 +387,30 @@
         }
 
         .tag-menu-item {
-            padding: 8px 12px;
+            padding: 10px 16px;
             cursor: pointer;
             transition: background-color 0.2s;
             text-align: center;
             display: inline-block;
             font-size: 12px;
+            border-radius: 6px;
         }
 
         .tag-menu-item:hover {
-            background-color: #4CAF50;
-            color: white;
+            background-color: #e6f3e6;
         }
 
-        /* 段落區塊樣式 */
         .paragraph-block {
             background-color: #f8f9fa;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 8px;
-            margin-bottom: 10px;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
             cursor: move;
             position: relative;
             display: flex;
             align-items: center;
-            height: 60px;
+            height: 64px;
             overflow: hidden;
             transition: box-shadow 0.2s;
         }
@@ -404,7 +432,7 @@
 
         .paragraph-header {
             font-weight: bold;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             font-size: 14px;
         }
 
@@ -415,12 +443,12 @@
 
         .paragraph-actions {
             display: flex;
-            gap: 8px;
+            gap: 12px;
             align-items: center;
         }
 
         .drag-handle {
-            margin-right: 8px;
+            margin-right: 12px;
             cursor: pointer;
             color: #666;
             flex-shrink: 0;
@@ -436,27 +464,27 @@
             position: absolute;
             background-color: white;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             z-index: 10;
             display: none;
             flex-direction: column;
-            padding: 4px;
+            padding: 8px;
         }
 
         .move-menu-item {
-            padding: 4px 8px;
+            padding: 8px 12px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 8px;
             font-size: 12px;
+            border-radius: 6px;
             transition: background-color 0.2s;
         }
 
         .move-menu-item:hover {
-            background-color: #4CAF50;
-            color: white;
+            background-color: #e6f3e6;
         }
 
         .move-menu-item svg {
@@ -464,21 +492,21 @@
             height: 16px;
         }
 
-        /* 滑動開關樣式（文字/段落） */
-        .toggle-switch {
+        .mode-toggle-switch {
             position: relative;
             display: inline-block;
-            flex: 1;
-            height: 34px;
+            width: 52px;
+            height: 32px;
+            flex-shrink: 0;
         }
 
-        .toggle-switch input {
+        .mode-toggle-switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
 
-        .slider {
+        .mode-slider {
             position: absolute;
             cursor: pointer;
             top: 0;
@@ -486,69 +514,71 @@
             right: 0;
             bottom: 0;
             background-color: #ccc;
-            border-radius: 4px;
-            transition: 0.3s;
+            border-radius: 8px;
+            transition: background-color 0.3s;
         }
 
-        .slider.active {
+        .mode-slider.active {
             background-color: #4CAF50;
         }
 
-        .slider:before {
+        .mode-slider:before {
             position: absolute;
             content: "";
-            height: 26px;
+            height: 24px;
             width: 50%;
             left: 4px;
             bottom: 4px;
             background-color: white;
-            border-radius: 4px;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border-radius: 6px;
+            transition: transform 0.3s;
         }
 
-        input:checked + .slider:before {
+        input:checked + .mode-slider:before {
             transform: translateX(calc(100% - 8px));
         }
 
-        .toggle-label {
+        .mode-label {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
             width: 50%;
             text-align: center;
-            font-size: 12px;
+            font-size: 10px;
             transition: opacity 0.3s;
-        }
-
-        .toggle-label.text {
-            left: 4px;
-            color: #ccc;
-            opacity: 1;
-        }
-
-        .toggle-label.paragraph {
-            right: 4px;
             color: #4CAF50;
+        }
+
+        .mode-label.text-icon {
+            left: 4px;
+            opacity: 1;
+            font-weight: bold;
+        }
+
+        .mode-label.paragraph-icon {
+            right: 4px;
             opacity: 0;
         }
 
-        input:checked + .slider .text {
+        .mode-label.paragraph-icon svg {
+            width: 12px;
+            height: 12px;
+            vertical-align: middle;
+        }
+
+        input:checked + .mode-slider .text-icon {
             opacity: 0;
         }
 
-        input:checked + .slider .paragraph {
+        input:checked + .mode-slider .paragraph-icon {
             opacity: 1;
         }
 
-        /* 語言切換滑動開關 */
         .lang-toggle-switch {
             position: relative;
             display: inline-block;
-            width: 60px;
-            height: 34px;
+            width: 64px;
+            height: 36px;
         }
 
         .lang-toggle-switch input {
@@ -565,8 +595,8 @@
             right: 0;
             bottom: 0;
             background-color: #ccc;
-            border-radius: 4px;
-            transition: 0.3s;
+            border-radius: 8px;
+            transition: background-color 0.3s;
         }
 
         .lang-slider.active {
@@ -576,13 +606,13 @@
         .lang-slider:before {
             position: absolute;
             content: "";
-            height: 26px;
+            height: 28px;
             width: 50%;
             left: 4px;
             bottom: 4px;
             background-color: white;
-            border-radius: 4px;
-            transition: 0.3s;
+            border-radius: 6px;
+            transition: transform 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -621,23 +651,91 @@
             opacity: 1;
         }
 
-        /* 按鈕容器 */
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
+        .paragraphs-container {
+            padding-top: 12px;
+            position: relative;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            justify-content: center;
             align-items: center;
         }
 
-        /* 拖曳插入線 */
-        .drop-indicator {
-            height: 2px;
-            background-color: #4CAF50;
-            margin: 5px 0;
-            width: 100%;
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            position: relative;
         }
-</style>
+
+        .modal-header {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .modal-textarea {
+            width: 100%;
+            height: 200px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .modal-textarea:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .modal-btn-save {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .modal-btn-save:hover {
+            background-color: #e6f3e6;
+            color: #333;
+        }
+
+        .modal-btn-cancel {
+            background-color: #ccc;
+            color: #333;
+        }
+
+        .modal-btn-cancel:hover {
+            background-color: #e6f3e6;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -646,7 +744,7 @@
                 <h1>歌詞編輯器</h1>
                 <div class="lang-switch">
                     <label class="lang-toggle-switch">
-                        <input type="checkbox" onchange="switchLanguage(this.checked ? 'en' : 'zh')">
+                        <input type="checkbox" data-action="switch-language">
                         <span class="lang-slider">
                             <span class="lang-label ch">CH</span>
                             <span class="lang-label en">EN</span>
@@ -656,27 +754,27 @@
             </div>
 
             <div id="songs-container"></div>
-            <button class="btn btn-primary" onclick="addNewSong()" style="width: 100%; margin-top: 10px; font-size: 18px;">+</button>
+            <button class="btn btn-primary" data-action="add-song" style="width: 100%; margin-top: 12px; font-size: 18px;">+</button>
         </div>
 
         <div class="preview-section">
             <div class="preview-header">
                 <h2>投影片預覽</h2>
-                <button class="btn btn-primary" onclick="exportSlides()">導出投影片</button>
+                <button class="btn btn-primary" data-action="export-slides">導出投影片</button>
             </div>
             <div class="card">
                 <div class="control-group">
                     <label>歌詞大小:</label>
-                    <input type="number" min="12" max="72" value="32" id="lyricsFontSize" onchange="updatePreview()">
+                    <input type="number" min="12" max="72" value="32" id="lyricsFontSize" data-action="update-preview">
                     <span>px</span>
                 </div>
                 <div class="control-group">
                     <label>歌詞行距:</label>
-                    <input type="number" min="1" max="2" value="1.2" id="lyricsLineHeight" step="0.1" onchange="updatePreview()">
+                    <input type="number" min="1" max="2" value="1.2" id="lyricsLineHeight" step="0.1" data-action="update-preview">
                 </div>
                 <div class="control-group">
                     <label>歌詞位置:</label>
-                    <select id="position" onchange="updatePreview()">
+                    <select id="position" data-action="update-preview">
                         <option value="flex-start">上方 (T)</option>
                         <option value="center" selected>中間 (M)</option>
                         <option value="flex-end">下方 (B)</option>
@@ -684,24 +782,24 @@
                 </div>
                 <div class="control-group">
                     <label>比例:</label>
-                    <select id="aspectRatio" onchange="updatePreview()">
+                    <select id="aspectRatio" data-action="update-preview">
                         <option value="4:3">4:3</option>
                         <option value="16:9" selected>16:9</option>
                     </select>
                 </div>
                 <div class="control-group">
                     <label>遮罩:</label>
-                    <input type="range" min="0" max="1" step="0.1" value="0.3" id="maskOpacity" onchange="updatePreview()">
+                    <input type="range" min="0" max="1" step="0.1" value="0.3" id="maskOpacity" data-action="update-preview">
                 </div>
                 <div class="control-group">
                     <label>
-                        <input type="checkbox" id="showTextBg" onchange="updatePreview()">
+                        <input type="checkbox" id="showTextBg" data-action="update-preview">
                         文字底色
                     </label>
                 </div>
                 <div class="control-group">
                     <label>
-                        <input type="checkbox" id="showInfo" checked onchange="updatePreview()">
+                        <input type="checkbox" id="showInfo" checked data-action="update-preview">
                         顯示右下角資訊
                     </label>
                 </div>
@@ -712,1003 +810,1137 @@
             </div>
 
             <div class="preview-controls">
-                <button class="btn btn-outline" onclick="prevSlide()" id="prevButton">上一頁</button>
+                <button class="btn btn-outline" data-action="prev-slide" id="prevButton">上一頁</button>
                 <span id="slideInfo">1 / 1 - 第 1 首歌</span>
-                <button class="btn btn-outline" onclick="nextSlide()" id="nextButton">下一頁</button>
+                <button class="btn btn-outline" data-action="next-slide" id="nextButton">下一頁</button>
             </div>
         </div>
     </div>
 
-    <!-- 標籤選單 (隱藏) -->
     <div id="tagMenu" class="tag-menu"></div>
-
-    <!-- 移動選單 (隱藏) -->
     <div id="moveMenu" class="move-menu"></div>
-
-    <!-- 圖片操作選單 (隱藏) -->
     <div id="imageMenu" class="image-menu"></div>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="author-info">
-                <p class="author-name">Author: Allen Liu</p>
-                <p class="author-email">Email: <a href="mailto:allens920181@gmail.com">allens920181@gmail.com</a></p>
-                <p class="author-description"></p>
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader"></div>
+            <textarea class="modal-textarea" id="modalTextarea"></textarea>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-save" data-action="save-paragraph">保存</button>
+                <button class="modal-btn modal-btn-cancel" data-action="cancel-edit">取消</button>
             </div>
         </div>
-    </footer>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <script>
-        const messages = {
-            zh: {
-                title: "歌詞投影片",
-                preview: "投影片預覽",
-                inputSongName: "輸入歌名...",
-                delete: "✕",
-                inputLyrics: "使用 #主歌 歌詞... #副歌 歌詞... 的格式輸入歌詞，空行自動分頁",
-                uploadImage: "背景圖片",
-                addNewSong: "新增下一首歌",
-                export: "導出投影片",
-                lyricsSize: "歌詞大小:",
-                lyricsLineHeight: "歌詞行距:",
-                lyricsPosition: "歌詞位置:",
-                aspectRatio: "比例:",
-                mask: "遮罩:",
-                textBg: "文字底色",
-                showInfo: "顯示右下角資訊",
-                positionTop: "上方 (T)",
-                positionMiddle: "中間 (M)",
-                positionBottom: "下方 (B)",
-                prevSlide: "上一頁",
-                nextSlide: "下一頁",
-                song: "第",
-                songUnit: "首歌",
-                authorDesc: "我是一位宣教士，歡迎進一步與我聯繫與奉獻給我",
-                tagVerse: "主歌",
-                tagChorus: "副歌",
-                tagBridge: "橋段",
-                tagInterlude: "過門",
-                tagOutro: "結尾",
-                convertToParagraphs: "段落",
-                convertToText: "文字",
-                copyParagraph: "複製",
-                deleteParagraph: "刪除",
-                moveUp: "上移",
-                moveDown: "下移",
-                replaceImage: "替換",
-                deleteImage: "刪除"
-            },
-            en: {
-                title: "Lyrics Slides",
-                preview: "Slide Preview",
-                inputSongName: "Song name...",
-                delete: "✕",
-                inputLyrics: "Use #Verse lyrics... #Chorus lyrics... format, empty line for new page",
-                uploadImage: "Background",
-                addNewSong: "Add Song",
-                export: "Export Slides",
-                lyricsSize: "Lyrics Size:",
-                lyricsLineHeight: "Line Height:",
-                lyricsPosition: "Position:",
-                aspectRatio: "Ratio:",
-                mask: "Mask:",
-                textBg: "Text Background",
-                showInfo: "Show Bottom-Right Info",
-                positionTop: "Top (T)",
-                positionMiddle: "Middle (M)",
-                positionBottom: "Bottom (B)",
-                prevSlide: "Previous",
-                nextSlide: "Next",
-                song: "Song",
-                songUnit: "",
-                authorDesc: "I am a missionary. Contact me to contribute to my ministry",
-                tagVerse: "Verse",
-                tagChorus: "Chorus",
-                tagBridge: "Bridge",
-                tagInterlude: "Interlude",
-                tagOutro: "Outro",
-                convertToParagraphs: "Paragraph",
-                convertToText: "Text",
-                copyParagraph: "Copy",
-                deleteParagraph: "Delete",
-                moveUp: "Move Up",
-                moveDown: "Move Down",
-                replaceImage: "Replace",
-                deleteImage: "Delete"
+        class LyricsEditor {
+            constructor() {
+                this.messages = {
+                    zh: {
+                        title: "歌詞投影片",
+                        preview: "投影片預覽",
+                        inputSongName: "輸入歌名...",
+                        delete: "✕",
+                        inputLyrics: "使用 #主歌 歌詞... #副歌 歌詞... 的格式輸入歌詞，空行自動分頁",
+                        uploadImage: "背景圖片",
+                        addNewSong: "新增下一首歌",
+                        export: "導出投影片",
+                        lyricsSize: "歌詞大小:",
+                        lyricsLineHeight: "歌詞行距:",
+                        lyricsPosition: "歌詞位置:",
+                        aspectRatio: "比例:",
+                        mask: "遮罩:",
+                        textBg: "文字底色",
+                        showInfo: "顯示右下角資訊",
+                        positionTop: "上方 (T)",
+                        positionMiddle: "中間 (M)",
+                        positionBottom: "下方 (B)",
+                        prevSlide: "上一頁",
+                        nextSlide: "下一頁",
+                        song: "第",
+                        songUnit: "首歌",
+                        tagVerse: "主歌",
+                        tagChorus: "副歌",
+                        tagBridge: "橋段",
+                        tagInterlude: "過門",
+                        tagOutro: "結尾",
+                        convertToParagraphs: "段落",
+                        convertToText: "文字",
+                        copyParagraph: "複製",
+                        deleteParagraph: "刪除",
+                        moveUp: "上移",
+                        moveDown: "下移",
+                        replaceImage: "替換",
+                        deleteImage: "刪除",
+                        editParagraph: "編輯",
+                        collapseSong: "收合歌曲",
+                        expandSong: "展開歌曲",
+                        noLyricsAlert: "請先新增歌曲並輸入歌詞"
+                    },
+                    en: {
+                        title: "Lyrics Slides",
+                        preview: "Slide Preview",
+                        inputSongName: "Song name...",
+                        delete: "✕",
+                        inputLyrics: "Use #Verse lyrics... #Chorus lyrics... format, empty line for new page",
+                        uploadImage: "Background",
+                        addNewSong: "Add Song",
+                        export: "Export Slides",
+                        lyricsSize: "Lyrics Size:",
+                        lyricsLineHeight: "Line Height:",
+                        lyricsPosition: "Position:",
+                        aspectRatio: "Ratio:",
+                        mask: "Mask:",
+                        textBg: "Text Background",
+                        showInfo: "Show Bottom-Right Info",
+                        positionTop: "Top (T)",
+                        positionMiddle: "Middle (M)",
+                        positionBottom: "Bottom (B)",
+                        prevSlide: "Previous",
+                        nextSlide: "Next",
+                        song: "Song",
+                        songUnit: "",
+                        tagVerse: "Verse",
+                        tagChorus: "Chorus",
+                        tagBridge: "Bridge",
+                        tagInterlude: "Interlude",
+                        tagOutro: "Outro",
+                        convertToParagraphs: "Paragraph",
+                        convertToText: "Text",
+                        copyParagraph: "Copy",
+                        deleteParagraph: "Delete",
+                        moveUp: "Move Up",
+                        moveDown: "Move Down",
+                        replaceImage: "Replace",
+                        deleteImage: "Delete",
+                        editParagraph: "Edit",
+                        collapseSong: "Collapse Song",
+                        expandSong: "Expand Song",
+                        noLyricsAlert: "Please add a song and enter lyrics first"
+                    }
+                };
+
+                this.state = {
+                    currentLang: 'zh',
+                    songs: [{ title: '', lyrics: '', background: null, isParagraphMode: false, paragraphs: [], isCollapsed: false }],
+                    currentSong: 0,
+                    currentSlide: 0,
+                    activeTextarea: null,
+                    lastCursorPosition: 0,
+                    activeMoveMenu: null,
+                    activeMoveMenuIndices: null,
+                    activeImageMenu: null,
+                    activeImageMenuIndex: null
+                };
+
+                this.elements = {
+                    songsContainer: document.getElementById('songs-container'),
+                    preview: document.getElementById('preview'),
+                    previewContent: document.getElementById('previewContent'),
+                    slideInfo: document.getElementById('slideInfo'),
+                    tagMenu: document.getElementById('tagMenu'),
+                    moveMenu: document.getElementById('moveMenu'),
+                    imageMenu: document.getElementById('imageMenu'),
+                    lyricsFontSize: document.getElementById('lyricsFontSize'),
+                    lyricsLineHeight: document.getElementById('lyricsLineHeight'),
+                    position: document.getElementById('position'),
+                    aspectRatio: document.getElementById('aspectRatio'),
+                    maskOpacity: document.getElementById('maskOpacity'),
+                    showTextBg: document.getElementById('showTextBg'),
+                    showInfo: document.getElementById('showInfo'),
+                    editModal: document.getElementById('editModal'),
+                    modalHeader: document.getElementById('modalHeader'),
+                    modalTextarea: document.getElementById('modalTextarea')
+                };
+
+                this.debounceUpdatePreview = this.debounce(this.updatePreview.bind(this), 100);
+                this.initializeEventListeners();
+                this.updateUI();
             }
-        };
 
-        let currentLang = 'zh';
-        let songs = [{ title: '', lyrics: '', background: null, isParagraphMode: false, paragraphs: [] }];
-        let currentSong = 0;
-        let currentSlide = 0;
-        let activeTextarea = null;
-        let lastCursorPosition = 0;
-        let activeMoveMenu = null;
-        let activeMoveMenuIndices = null;
-        let activeImageMenu = null;
-        let activeImageMenuIndex = null;
+            debounce(func, wait) {
+                let timeout;
+                return function (...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
 
-        function switchLanguage(lang) {
-            currentLang = lang;
-            document.title = messages[lang].title;
-            document.querySelector('.header h1').textContent = messages[lang].title;
-            document.querySelector('.preview-header h2').textContent = messages[lang].preview;
-            document.querySelector('.preview-header .btn-primary').textContent = messages[lang].export;
-            
-            const labels = document.querySelectorAll('.control-group label');
-            labels[0].textContent = messages[lang].lyricsSize;
-            labels[1].textContent = messages[lang].lyricsLineHeight;
-            labels[2].textContent = messages[lang].lyricsPosition;
-            labels[3].textContent = messages[lang].aspectRatio;
-            labels[4].textContent = messages[lang].mask;
-            labels[5].lastChild.textContent = messages[lang].textBg;
-            labels[6].lastChild.textContent = messages[lang].showInfo;
-            
-            const positionSelect = document.getElementById('position');
-            positionSelect.options[0].text = messages[lang].positionTop;
-            positionSelect.options[1].text = messages[lang].positionMiddle;
-            positionSelect.options[2].text = messages[lang].positionBottom;
-            
-            document.getElementById('prevButton').textContent = messages[lang].prevSlide;
-            document.getElementById('nextButton').textContent = messages[lang].nextSlide;
-            
-            document.querySelector('.author-description').textContent = messages[lang].authorDesc;
-            
-            updateSongsContainer();
-            updatePreview();
-        }
+            initializeEventListeners() {
+                document.addEventListener('click', this.handleDocumentClick.bind(this));
+                window.addEventListener('resize', this.debounceUpdatePreview);
 
-        function parseLyrics(lyrics) {
-            const sections = [];
-            let currentType = '';
-            let currentContent = '';
-            
-            const lines = lyrics.split('\n');
-            let i = 0;
-            
-            while (i < lines.length) {
-                const line = lines[i].trim();
-                
-                if (line.startsWith('#')) {
-                    if (currentType && currentContent.trim()) {
-                        const contentParts = currentContent.split('\n\n').filter(part => part.trim());
-                        for (const part of contentParts) {
-                            sections.push({ type: currentType, content: part.trim() });
+                document.addEventListener('change', (e) => {
+                    const action = e.target.dataset.action;
+                    if (action === 'switch-language') {
+                        this.switchLanguage(e.target.checked ? 'en' : 'zh');
+                    } else if (action === 'update-preview') {
+                        this.debounceUpdatePreview();
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    const action = e.target.dataset.action;
+                    if (action === 'add-song') {
+                        this.addNewSong();
+                    } else if (action === 'export-slides') {
+                        this.exportSlides();
+                    } else if (action === 'prev-slide') {
+                        this.prevSlide();
+                    } else if (action === 'next-slide') {
+                        this.nextSlide();
+                    } else if (action === 'save-paragraph') {
+                        this.saveParagraphEdit();
+                    } else if (action === 'cancel-edit') {
+                        this.closeEditModal();
+                    }
+                });
+
+                this.elements.songsContainer.addEventListener('input', (e) => {
+                    if (e.target.classList.contains('song-input')) {
+                        const index = Number(e.target.dataset.index);
+                        this.handleSongTitleChange(index, e.target.value);
+                    } else if (e.target.classList.contains('lyrics-textarea')) {
+                        const index = Number(e.target.dataset.index);
+                        this.handleLyricsChange(index, e.target.value);
+                    }
+                });
+
+                this.elements.songsContainer.addEventListener('input', (e) => {
+                    if (e.target.classList.contains('lyrics-textarea')) {
+                        this.handleTextareaInput(e, e.target, Number(e.target.dataset.index));
+                    }
+                });
+
+                this.elements.songsContainer.addEventListener('keydown', (e) => {
+                    if (e.target.classList.contains('lyrics-textarea')) {
+                        this.handleTextareaKeydown(e, e.target);
+                    }
+                });
+
+                this.elements.songsContainer.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('lyrics-textarea')) {
+                        this.setActiveTextarea(e.target, Number(e.target.dataset.index));
+                    } else if (e.target.classList.contains('song-delete-icon')) {
+                        this.removeSong(Number(e.target.dataset.index));
+                    } else if (e.target.classList.contains('drag-handle')) {
+                        const indices = e.target.dataset.indices.split(',').map(Number);
+                        this.showMoveMenu(e, ...indices);
+                    } else if (e.target.classList.contains('paragraph-action-icon')) {
+                        const [songIndex, paraIndex] = e.target.dataset.indices.split(',').map(Number);
+                        if (e.target.dataset.action === 'edit') {
+                            this.openEditModal(songIndex, paraIndex);
+                        } else if (e.target.dataset.action === 'copy') {
+                            this.copyParagraph(songIndex, paraIndex);
+                        } else if (e.target.dataset.action === 'delete') {
+                            this.deleteParagraph(songIndex, paraIndex);
+                        }
+                    } else if (e.target.classList.contains('thumbnail')) {
+                        this.showImageMenu(e, Number(e.target.dataset.index));
+                    } else if (e.target.classList.contains('collapse-icon')) {
+                        this.toggleCollapse(Number(e.target.dataset.index));
+                    }
+                });
+
+                this.elements.songsContainer.addEventListener('change', (e) => {
+                    if (e.target.type === 'file') {
+                        this.handleImageUpload(Number(e.target.dataset.index), e.target);
+                    } else if (e.target.classList.contains('mode-toggle-input')) {
+                        const index = Number(e.target.dataset.index);
+                        e.target.checked ? this.convertToParagraphs(index) : this.convertToText(index);
+                    }
+                });
+
+                this.elements.songsContainer.addEventListener('dragstart', (e) => {
+                    if (e.target.classList.contains('paragraph-block')) {
+                        const [songIndex, paraIndex] = e.target.dataset.indices.split(',').map(Number);
+                        this.dragParagraph(e, songIndex, paraIndex);
+                    } else if (e.target.classList.contains('song-header')) {
+                        const index = Number(e.target.dataset.index);
+                        this.dragSong(e, index);
+                    }
+                });
+
+                this.elements.songsContainer.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+
+                this.elements.songsContainer.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const data = e.dataTransfer.getData('text/plain');
+                    if (!data) return;
+                    const parsedData = JSON.parse(data);
+                    if (parsedData.type === 'paragraph') {
+                        const container = this.findParagraphsContainer(e.target);
+                        if (container && Number(container.dataset.index) === parsedData.songIndex) {
+                            this.dropParagraph(e, parsedData.songIndex, container, parsedData.paraIndex);
+                        }
+                    } else if (parsedData.type === 'song') {
+                        this.dropSong(e);
+                    }
+                });
+
+                this.elements.tagMenu.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('tag-menu-item')) {
+                        this.insertTag(e.target.dataset.tag, Number(e.target.dataset.index));
+                    }
+                });
+
+                this.elements.moveMenu.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('move-menu-item')) {
+                        const [songIndex, paraIndex] = e.target.dataset.indices.split(',').map(Number);
+                        if (e.target.dataset.action === 'move-up') {
+                            this.moveParagraphUp(songIndex, paraIndex);
+                        } else if (e.target.dataset.action === 'move-down') {
+                            this.moveParagraphDown(songIndex, paraIndex);
                         }
                     }
-                    
-                    currentType = line.substring(1).trim();
-                    currentContent = '';
-                    i++;
-                } else if (currentType) {
-                    currentContent += (currentContent ? '\n' : '') + lines[i];
-                    i++;
-                } else {
-                    i++;
-                }
-            }
-            
-            if (currentType && currentContent.trim()) {
-                const contentParts = currentContent.split('\n\n').filter(part => part.trim());
-                for (const part of contentParts) {
-                    sections.push({ type: currentType, content: part.trim() });
-                }
-            }
-            
-            return sections;
-        }
+                });
 
-        function parseParagraphs(lyrics) {
-            const paragraphs = [];
-            let currentType = '';
-            let currentContent = '';
-            
-            const lines = lyrics.split('\n');
-            let i = 0;
-            
-            while (i < lines.length) {
-                const line = lines[i].trim();
-                
-                if (line.startsWith('#')) {
-                    if (currentType && currentContent.trim()) {
-                        paragraphs.push({ type: currentType, content: currentContent.trim() });
+                this.elements.imageMenu.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('image-menu-item')) {
+                        const index = Number(e.target.dataset.index);
+                        if (e.target.dataset.action === 'replace') {
+                            this.replaceImage(index);
+                        } else if (e.target.dataset.action === 'delete') {
+                            this.deleteImage(index);
+                        }
                     }
-                    
-                    currentType = line.substring(1).trim();
-                    currentContent = '';
-                    i++;
-                } else if (currentType) {
-                    currentContent += (currentContent ? '\n' : '') + lines[i];
-                    i++;
-                } else {
-                    i++;
+                });
+            }
+
+            findParagraphsContainer(element) {
+                let current = element;
+                while (current && current !== document) {
+                    if (current.classList.contains('paragraphs-container')) {
+                        return current;
+                    }
+                    current = current.parentElement;
+                }
+                return null;
+            }
+
+            switchLanguage(lang) {
+                this.state.currentLang = lang;
+                this.updateUI();
+            }
+
+            updateUI() {
+                document.title = this.messages[this.state.currentLang].title;
+                document.querySelector('.header h1').textContent = this.messages[this.state.currentLang].title;
+                document.querySelector('.preview-header h2').textContent = this.messages[this.state.currentLang].preview;
+                document.querySelector('.preview-header .btn-primary').textContent = this.messages[this.state.currentLang].export;
+
+                const labels = document.querySelectorAll('.control-group label');
+                labels[0].textContent = this.messages[this.state.currentLang].lyricsSize;
+                labels[1].textContent = this.messages[this.state.currentLang].lyricsLineHeight;
+                labels[2].textContent = this.messages[this.state.currentLang].lyricsPosition;
+                labels[3].textContent = this.messages[this.state.currentLang].aspectRatio;
+                labels[4].textContent = this.messages[this.state.currentLang].mask;
+                labels[5].lastChild.textContent = this.messages[this.state.currentLang].textBg;
+                labels[6].lastChild.textContent = this.messages[this.state.currentLang].showInfo;
+
+                const positionSelect = this.elements.position;
+                positionSelect.options[0].text = this.messages[this.state.currentLang].positionTop;
+                positionSelect.options[1].text = this.messages[this.state.currentLang].positionMiddle;
+                positionSelect.options[2].text = this.messages[this.state.currentLang].positionBottom;
+
+                document.getElementById('prevButton').textContent = this.messages[this.state.currentLang].prevSlide;
+                document.getElementById('nextButton').textContent = this.messages[this.state.currentLang].nextSlide;
+
+                this.updateSongsContainer();
+                this.updatePreview();
+            }
+
+            toggleCollapse(songIndex) {
+                this.state.songs[songIndex].isCollapsed = !this.state.songs[songIndex].isCollapsed;
+                this.updateSongsContainer();
+            }
+
+            parseLyrics(lyrics) {
+                const sections = [];
+                let currentType = '';
+                let currentContent = '';
+
+                const lines = lyrics.split('\n');
+                let i = 0;
+
+                while (i < lines.length) {
+                    const line = lines[i].trim();
+
+                    if (line.startsWith('#')) {
+                        if (currentType && currentContent.trim()) {
+                            const contentParts = currentContent.split('\n\n').filter(part => part.trim());
+                            for (const part of contentParts) {
+                                sections.push({ type: currentType, content: part.trim() });
+                            }
+                        }
+
+                        currentType = line.substring(1).trim();
+                        currentContent = '';
+                        i++;
+                    } else if (currentType) {
+                        currentContent += (currentContent ? '\n' : '') + lines[i];
+                        i++;
+                    } else {
+                        i++;
+                    }
+                }
+
+                if (currentType && currentContent.trim()) {
+                    const contentParts = currentContent.split('\n\n').filter(part => part.trim());
+                    for (const part of contentParts) {
+                        sections.push({ type: currentType, content: part.trim() });
+                    }
+                }
+
+                return sections;
+            }
+
+            parseParagraphs(lyrics) {
+                const paragraphs = [];
+                let currentType = '';
+                let currentContent = '';
+
+                const lines = lyrics.split('\n');
+                let i = 0;
+
+                while (i < lines.length) {
+                    const line = lines[i].trim();
+
+                    if (line.startsWith('#')) {
+                        if (currentType && currentContent.trim()) {
+                            paragraphs.push({ type: currentType, content: currentContent.trim() });
+                        }
+
+                        currentType = line.substring(1).trim();
+                        currentContent = '';
+                        i++;
+                    } else if (currentType) {
+                        currentContent += (currentContent ? '\n' : '') + lines[i];
+                        i++;
+                    } else {
+                        i++;
+                    }
+                }
+
+                if (currentType && currentContent.trim()) {
+                    paragraphs.push({ type: currentType, content: currentContent.trim() });
+                }
+
+                // Ensure at least one empty paragraph if lyrics are empty
+                if (paragraphs.length === 0) {
+                    paragraphs.push({ type: '', content: '' });
+                }
+
+                return paragraphs;
+            }
+
+            getFirstLine(content) {
+                const lines = content.split('\n').filter(line => line.trim());
+                return lines[0] || '';
+            }
+
+            convertToParagraphs(songIndex) {
+                const song = this.state.songs[songIndex];
+                song.isParagraphMode = true;
+                song.paragraphs = this.parseParagraphs(song.lyrics);
+                // Expand the song if it is collapsed
+                if (song.isCollapsed) {
+                    song.isCollapsed = false;
+                }
+                this.updateSongsContainer();
+                this.updatePreview();
+            }
+
+            convertToText(songIndex) {
+                const song = this.state.songs[songIndex];
+                song.isParagraphMode = false;
+                if (song.paragraphs.length > 0) {
+                    song.lyrics = song.paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n');
+                }
+                song.paragraphs = [];
+                // Expand the song if it is collapsed
+                if (song.isCollapsed) {
+                    song.isCollapsed = false;
+                }
+                this.updateSongsContainer();
+                this.updatePreview();
+            }
+
+            copyParagraph(songIndex, paraIndex) {
+                const song = this.state.songs[songIndex];
+                const paragraph = song.paragraphs[paraIndex];
+                song.paragraphs.splice(paraIndex + 1, 0, { ...paragraph });
+                this.updateSongsContainer();
+                this.updatePreview();
+            }
+
+            deleteParagraph(songIndex, paraIndex) {
+                const song = this.state.songs[songIndex];
+                if (song.paragraphs.length <= 1) {
+                    alert(this.messages[this.state.currentLang].noLyricsAlert);
+                    return;
+                }
+                song.paragraphs.splice(paraIndex, 1);
+                this.updateSongsContainer();
+                this.updatePreview();
+            }
+
+            moveParagraphUp(songIndex, paraIndex) {
+                if (paraIndex === 0) return;
+                const song = this.state.songs[songIndex];
+                const [paragraph] = song.paragraphs.splice(paraIndex, 1);
+                song.paragraphs.splice(paraIndex - 1, 0, paragraph);
+                this.updateSongsContainer();
+                this.updatePreview();
+                if (this.state.activeMoveMenu && this.state.activeMoveMenuIndices?.songIndex === songIndex) {
+                    this.updateMoveMenuPosition(songIndex, paraIndex - 1);
                 }
             }
-            
-            if (currentType && currentContent.trim()) {
-                paragraphs.push({ type: currentType, content: currentContent.trim() });
-            }
-            
-            return paragraphs;
-        }
 
-        function getFirstLine(content) {
-            const lines = content.split('\n').filter(line => line.trim());
-            return lines[0] || '';
-        }
-
-        function convertToParagraphs(songIndex) {
-            const song = songs[songIndex];
-            song.isParagraphMode = true;
-            song.paragraphs = parseParagraphs(song.lyrics);
-            updateSongsContainer();
-            updatePreview();
-        }
-
-        function convertToText(songIndex) {
-            const song = songs[songIndex];
-            song.isParagraphMode = false;
-            if (song.paragraphs.length > 0) {
-                song.lyrics = song.paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n');
-            }
-            song.paragraphs = [];
-            updateSongsContainer();
-            updatePreview();
-        }
-
-        function copyParagraph(songIndex, paraIndex) {
-            const song = songs[songIndex];
-            const paragraph = song.paragraphs[paraIndex];
-            song.paragraphs.splice(paraIndex + 1, 0, { ...paragraph });
-            updateSongsContainer();
-            updatePreview();
-        }
-
-        function deleteParagraph(songIndex, paraIndex) {
-            const song = songs[songIndex];
-            if (song.paragraphs.length <= 1) {
-                alert(messages[currentLang].inputLyrics);
-                return;
-            }
-            song.paragraphs.splice(paraIndex, 1);
-            updateSongsContainer();
-            updatePreview();
-        }
-
-        function moveParagraphUp(songIndex, paraIndex) {
-            if (paraIndex === 0) return;
-            const song = songs[songIndex];
-            const [paragraph] = song.paragraphs.splice(paraIndex, 1);
-            song.paragraphs.splice(paraIndex - 1, 0, paragraph);
-            updateSongsContainer();
-            updatePreview();
-            if (activeMoveMenu && activeMoveMenuIndices.songIndex === songIndex) {
-                updateMoveMenuPosition(songIndex, paraIndex - 1);
-            }
-        }
-
-        function moveParagraphDown(songIndex, paraIndex) {
-            const song = songs[songIndex];
-            if (paraIndex === song.paragraphs.length - 1) return;
-            const [paragraph] = song.paragraphs.splice(paraIndex, 1);
-            song.paragraphs.splice(paraIndex + 1, 0, paragraph);
-            updateSongsContainer();
-            updatePreview();
-            if (activeMoveMenu && activeMoveMenuIndices.songIndex === songIndex) {
-                updateMoveMenuPosition(songIndex, paraIndex + 1);
-            }
-        }
-
-        function showMoveMenu(event, songIndex, paraIndex) {
-            const moveMenu = document.getElementById('moveMenu');
-            const dragHandle = event.currentTarget;
-            
-            if (activeMoveMenu === dragHandle) {
-                hideMoveMenu();
-                return;
+            moveParagraphDown(songIndex, paraIndex) {
+                const song = this.state.songs[songIndex];
+                if (paraIndex === song.paragraphs.length - 1) return;
+                const [paragraph] = song.paragraphs.splice(paraIndex, 1);
+                song.paragraphs.splice(paraIndex + 1, 0, paragraph);
+                this.updateSongsContainer();
+                this.updatePreview();
+                if (this.state.activeMoveMenu && this.state.activeMoveMenuIndices?.songIndex === songIndex) {
+                    this.updateMoveMenuPosition(songIndex, paraIndex + 1);
+                }
             }
 
-            moveMenu.innerHTML = `
-                <div class="move-menu-item" onclick="moveParagraphUp(${songIndex}, ${paraIndex})">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 5v14M5 12l7-7 7 7"/>
-                    </svg>
-                    ${messages[currentLang].moveUp}
-                </div>
-                <div class="move-menu-item" onclick="moveParagraphDown(${songIndex}, ${paraIndex})">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 5v14M5 12l7 7 7-7"/>
-                    </svg>
-                    ${messages[currentLang].moveDown}
-                </div>
-            `;
-            
-            const rect = dragHandle.getBoundingClientRect();
-            moveMenu.style.top = `${rect.bottom + 5}px`;
-            moveMenu.style.left = `${rect.left}px`;
-            moveMenu.style.display = 'flex';
-            
-            activeMoveMenu = dragHandle;
-            activeMoveMenuIndices = { songIndex, paraIndex };
-            document.addEventListener('click', hideMoveMenuOnClickOutside);
-        }
+            showMoveMenu(event, songIndex, paraIndex) {
+                const dragHandle = event.target;
+                if (this.state.activeMoveMenu === dragHandle) {
+                    this.hideMoveMenu();
+                    return;
+                }
 
-        function updateMoveMenuPosition(songIndex, paraIndex) {
-            const moveMenu = document.getElementById('moveMenu');
-            const dragHandle = document.querySelector(`.paragraphs-container .paragraph-block:nth-child(${paraIndex + 1}) .drag-handle`);
-            if (!dragHandle) {
-                hideMoveMenu();
-                return;
-            }
-            const rect = dragHandle.getBoundingClientRect();
-            moveMenu.style.top = `${rect.bottom + 5}px`;
-            moveMenu.style.left = `${rect.left}px`;
-            moveMenu.innerHTML = `
-                <div class="move-menu-item" onclick="moveParagraphUp(${songIndex}, ${paraIndex})">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 5v14M5 12l7-7 7 7"/>
-                    </svg>
-                    ${messages[currentLang].moveUp}
-                </div>
-                <div class="move-menu-item" onclick="moveParagraphDown(${songIndex}, ${paraIndex})">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 5v14M5 12l7 7 7-7"/>
-                    </svg>
-                    ${messages[currentLang].moveDown}
-                </div>
-            `;
-            activeMoveMenu = dragHandle;
-            activeMoveMenuIndices = { songIndex, paraIndex };
-        }
+                const menuItems = [
+                    {
+                        action: 'move-up',
+                        label: this.messages[this.state.currentLang].moveUp,
+                        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>'
+                    },
+                    {
+                        action: 'move-down',
+                        label: this.messages[this.state.currentLang].moveDown,
+                        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>'
+                    }
+                ];
 
-        function hideMoveMenuOnClickOutside(event) {
-            const moveMenu = document.getElementById('moveMenu');
-            if (!moveMenu.contains(event.target) && !event.target.classList.contains('drag-handle')) {
-                hideMoveMenu();
-            }
-        }
-
-        function hideMoveMenu() {
-            const moveMenu = document.getElementById('moveMenu');
-            moveMenu.style.display = 'none';
-            document.removeEventListener('click', hideMoveMenuOnClickOutside);
-            activeMoveMenu = null;
-            activeMoveMenuIndices = null;
-        }
-
-        function showImageMenu(event, songIndex) {
-            const imageMenu = document.getElementById('imageMenu');
-            const thumbnail = event.currentTarget;
-            
-            if (activeImageMenu === thumbnail) {
-                hideImageMenu();
-                return;
+                this.showMenu(this.elements.moveMenu, dragHandle, menuItems, { songIndex, paraIndex });
+                this.state.activeMoveMenu = dragHandle;
+                this.state.activeMoveMenuIndices = { songIndex, paraIndex };
             }
 
-            imageMenu.innerHTML = `
-                <div class="image-menu-item" onclick="replaceImage(${songIndex})">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="17 8 12 3 7 8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                    ${messages[currentLang].replaceImage}
-                </div>
-                <div class="image-menu-item" onclick="deleteImage(${songIndex})">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                    ${messages[currentLang].deleteImage}
-                </div>
-            `;
-            
-            const rect = thumbnail.getBoundingClientRect();
-            imageMenu.style.top = `${rect.bottom + 5}px`;
-            imageMenu.style.left = `${rect.left}px`;
-            imageMenu.style.display = 'flex';
-            
-            activeImageMenu = thumbnail;
-            activeImageMenuIndex = songIndex;
-            document.addEventListener('click', hideImageMenuOnClickOutside);
-        }
+            updateMoveMenuPosition(songIndex, paraIndex) {
+                const dragHandle = this.elements.songsContainer.querySelector(`.paragraphs-container[data-index="${songIndex}"] .paragraph-block:nth-child(${paraIndex + 1}) .drag-handle`);
+                if (!dragHandle) {
+                    this.hideMoveMenu();
+                    return;
+                }
 
-        function hideImageMenuOnClickOutside(event) {
-            const imageMenu = document.getElementById('imageMenu');
-            if (!imageMenu.contains(event.target) && !event.target.classList.contains('thumbnail')) {
-                hideImageMenu();
+                const menuItems = [
+                    {
+                        action: 'move-up',
+                        label: this.messages[this.state.currentLang].moveUp,
+                        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>'
+                    },
+                    {
+                        action: 'move-down',
+                        label: this.messages[this.state.currentLang].moveDown,
+                        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>'
+                    }
+                ];
+
+                this.showMenu(this.elements.moveMenu, dragHandle, menuItems, { songIndex, paraIndex });
+                this.state.activeMoveMenu = dragHandle;
+                this.state.activeMoveMenuIndices = { songIndex, paraIndex };
             }
-        }
 
-        function hideImageMenu() {
-            const imageMenu = document.getElementById('imageMenu');
-            imageMenu.style.display = 'none';
-            document.removeEventListener('click', hideImageMenuOnClickOutside);
-            activeImageMenu = null;
-            activeImageMenuIndex = null;
-        }
+            showImageMenu(event, songIndex) {
+                const thumbnail = event.target;
+                if (this.state.activeImageMenu === thumbnail) {
+                    this.hideImageMenu();
+                    return;
+                }
 
-        function replaceImage(songIndex) {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = () => handleImageUpload(songIndex, input);
-            input.click();
-            hideImageMenu();
-        }
+                const menuItems = [
+                    {
+                        action: 'replace',
+                        label: this.messages[this.state.currentLang].replaceImage,
+                        svg: '<svg viewBox="0 0 24 19" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><path d="M12 3v12"/></svg>'
+                    },
+                    {
+                        action: 'delete',
+                        label: this.messages[this.state.currentLang].deleteImage,
+                        svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>'
+                    }
+                ];
 
-        function deleteImage(songIndex) {
-            songs[songIndex].background = null;
-            updateSongsContainer();
-            updatePreview();
-            hideImageMenu();
-        }
+                this.showMenu(this.elements.imageMenu, thumbnail, menuItems, { songIndex });
+                this.state.activeImageMenu = thumbnail;
+                this.state.activeImageMenuIndex = songIndex;
+            }
 
-        function updateSongsContainer() {
-            const container = document.getElementById('songs-container');
-            container.innerHTML = '';
+            showMenu(menu, target, items, data) {
+                menu.innerHTML = items.map(item => `
+                    <div class="move-menu-item" data-action="${item.action}" data-indices="${data.songIndex}${data.paraIndex !== undefined ? ',' + data.paraIndex : ''}">
+                        ${item.svg}
+                        ${item.label}
+                    </div>
+                `).join('');
 
-            songs.forEach((song, index) => {
-                const songCard = document.createElement('div');
-                songCard.className = 'card';
-                let lyricsContent = '';
-                
-                if (song.isParagraphMode) {
-                    lyricsContent = `
-                        <div class="paragraphs-container" ondragover="allowDrop(event)" ondrop="dropParagraph(event, ${index})">
-                            ${song.paragraphs.map((para, paraIndex) => `
-                                <div class="paragraph-block" draggable="true" ondragstart="dragParagraph(event, ${index}, ${paraIndex})">
-                                    <svg class="drag-handle" onclick="showMoveMenu(event, ${index}, ${paraIndex})" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M3 6h18M3 12h18M3 18h18"/>
-                                    </svg>
-                                    <div class="paragraph-content">
-                                        <div class="paragraph-header">${para.type}</div>
-                                        <div class="paragraph-preview">${getFirstLine(para.content)}</div>
-                                    </div>
-                                    <div class="paragraph-actions">
-                                        <svg class="action-icon paragraph-action-icon" onclick="copyParagraph(${index}, ${paraIndex})" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-                                        </svg>
-                                        <svg class="action-icon paragraph-action-icon" onclick="deleteParagraph(${index}, ${paraIndex})" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M6 18L18 6M6 6l12 12"/>
-                                        </svg>
-                                    </div>
-                                </div>
-                            `).join('')}
+                const rect = target.getBoundingClientRect();
+                menu.style.top = `${rect.bottom + 8}px`;
+                menu.style.left = `${rect.left}px`;
+                menu.style.display = 'flex';
+            }
+
+            hideMoveMenu() {
+                this.elements.moveMenu.style.display = 'none';
+                this.state.activeMoveMenu = null;
+                this.state.activeMoveMenuIndices = null;
+            }
+
+            hideImageMenu() {
+                this.elements.imageMenu.style.display = 'none';
+                this.state.activeImageMenu = null;
+                this.state.activeImageMenuIndex = null;
+            }
+
+            replaceImage(songIndex) {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.dataset.index = songIndex;
+                input.onchange = (e) => this.handleImageUpload(songIndex, e.target);
+                input.click();
+                this.hideImageMenu();
+            }
+
+            deleteImage(songIndex) {
+                this.state.songs[songIndex].background = null;
+                this.updateSongsContainer();
+                this.updatePreview();
+                this.hideImageMenu();
+            }
+
+            openEditModal(songIndex, paraIndex) {
+                const song = this.state.songs[songIndex];
+                const paragraph = song.paragraphs[paraIndex];
+                this.state.editingSongIndex = songIndex;
+                this.state.editingParaIndex = paraIndex;
+
+                this.elements.modalHeader.textContent = `${this.messages[this.state.currentLang].editParagraph} - ${paragraph.type}`;
+                this.elements.modalTextarea.value = paragraph.content;
+                this.elements.editModal.style.display = 'flex';
+            }
+
+            saveParagraphEdit() {
+                const songIndex = this.state.editingSongIndex;
+                const paraIndex = this.state.editingParaIndex;
+                const song = this.state.songs[songIndex];
+                song.paragraphs[paraIndex].content = this.elements.modalTextarea.value.trim();
+                this.closeEditModal();
+                this.updateSongsContainer();
+                this.updatePreview();
+            }
+
+            closeEditModal() {
+                this.elements.editModal.style.display = 'none';
+                this.state.editingSongIndex = null;
+                this.state.editingParaIndex = null;
+                this.elements.modalTextarea.value = '';
+            }
+
+            updateSongsContainer() {
+                const html = this.state.songs.map((song, index) => `
+                    <div class="card ${song.isCollapsed ? 'collapsed' : ''}">
+                        <div class="song-header" draggable="true" data-index="${index}">
+                            <svg class="collapse-icon" data-index="${index}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 9l-7 7-7-7" />
+                            </svg>
+                            <input type="text" class="song-input" value="${song.title}" placeholder="${this.messages[this.state.currentLang].inputSongName}" data-index="${index}">
+                            <div class="song-controls">
+                                <label class="mode-toggle-switch" title="${this.messages[this.state.currentLang].convertToText}/${this.messages[this.state.currentLang].convertToParagraphs}">
+                                    <input type="checkbox" class="mode-toggle-input" ${song.isParagraphMode ? 'checked' : ''} data-index="${index}">
+                                    <span class="mode-slider">
+                                        <span class="mode-label text-icon">T</span>
+                                        <span class="mode-label paragraph-icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M3 6h18M3 12h18M3 18h18"/>
+                                            </svg>
+                                        </span>
+                                    </span>
+                                </label>
+                                <label class="upload-button" title="${this.messages[this.state.currentLang].uploadImage}">
+                                    ${song.background
+                                        ? `<img src="${song.background}" class="thumbnail" alt="Background thumbnail" data-index="${index}">`
+                                        : `<svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                                            <polyline points="21 15 16 10 5 21"/>
+                                        </svg>`
+                                    }
+                                    <input type="file" accept="image/*" data-index="${index}">
+                                </label>
+                            </div>
+                            <svg class="action-icon song-delete-icon" data-index="${index}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
                         </div>
-                    `;
-                } else {
-                    lyricsContent = `
-                        <textarea
-                            class="lyrics-textarea"
-                            placeholder="${messages[currentLang].inputLyrics}"
-                            onchange="handleLyricsChange(${index}, this.value)"
-                            oninput="handleTextareaInput(event, this, ${index})"
-                            onkeydown="handleTextareaKeydown(event, this)"
-                            onclick="setActiveTextarea(this, ${index})"
-                        >${song.lyrics}</textarea>
-                    `;
-                }
-
-                const uploadButtonContent = song.background
-                    ? `
-                        <img src="${song.background}" class="thumbnail" alt="Background thumbnail" onclick="showImageMenu(event, ${index})">
-                    `
-                    : `
-                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                            <polyline points="17 8 12 3 7 8"/>
-                            <line x1="12" y1="3" x2="12" y2="15"/>
-                        </svg>
-                        <span class="upload-text">${messages[currentLang].uploadImage}</span>
-                    `;
-
-                songCard.innerHTML = `
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px; position: relative;">
-                        <input
-                            type="text"
-                            class="song-input"
-                            value="${song.title}"
-                            placeholder="${messages[currentLang].inputSongName}"
-                            onchange="handleSongTitleChange(${index}, this.value)"
-                        >
-                        <svg class="action-icon song-delete-icon" onclick="removeSong(${index})" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
+                        <div class="song-content">
+                            ${song.isParagraphMode
+                                ? `<div class="paragraphs-container" data-index="${index}">
+                                    ${song.paragraphs.map((para, paraIndex) => `
+                                        <div class="paragraph-block" draggable="true" data-indices="${index},${paraIndex}">
+                                            <svg class="drag-handle" data-indices="${index},${paraIndex}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M3 6h18M3 12h18M3 18h18"/>
+                                            </svg>
+                                            <div class="paragraph-content">
+                                                <div class="paragraph-header">${para.type}</div>
+                                                <div class="paragraph-preview">${this.getFirstLine(para.content)}</div>
+                                            </div>
+                                            <div class="paragraph-actions">
+                                                <svg class="action-icon paragraph-action-icon" data-indices="${index},${paraIndex}" data-action="edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                                </svg>
+                                                <svg class="action-icon paragraph-action-icon" data-indices="${index},${paraIndex}" data-action="copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                                                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                                                </svg>
+                                                <svg class="action-icon paragraph-action-icon" data-indices="${index},${paraIndex}" data-action="delete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M6 18L18 6M6 6l12 12"/>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>`
+                                : `<textarea class="lyrics-textarea" placeholder="${this.messages[this.state.currentLang].inputLyrics}" data-index="${index}">${song.lyrics}</textarea>`
+                            }
+                        </div>
                     </div>
-                    <div class="button-group">
-                        <label class="toggle-switch">
-                            <input type="checkbox" ${song.isParagraphMode ? 'checked' : ''} onchange="this.checked ? convertToParagraphs(${index}) : convertToText(${index})">
-                            <span class="slider ${song.isParagraphMode ? 'active' : ''}">
-                                <span class="toggle-label text">${messages[currentLang].convertToText}</span>
-                                <span class="toggle-label paragraph">${messages[currentLang].convertToParagraphs}</span>
-                            </span>
-                        </label>
-                        <label class="upload-button">
-                            ${uploadButtonContent}
-                            <input type="file" accept="image/*" onchange="handleImageUpload(${index}, this)">
-                        </label>
-                    </div>
-                    ${lyricsContent}
-                `;
-                container.appendChild(songCard);
-            });
-        }
+                `).join('');
+                
+                this.elements.songsContainer.innerHTML = html || '<div>無歌曲，請點擊下方按鈕新增</div>';
+            }
 
-        function setActiveTextarea(textarea, index) {
-            activeTextarea = textarea;
-            lastCursorPosition = textarea.selectionStart;
-        }
+            dragSong(event, songIndex) {
+                event.dataTransfer.setData('text/plain', JSON.stringify({ type: 'song', songIndex }));
+                event.target.classList.add('dragging');
+            }
 
-        function handleTextareaKeydown(event, textarea) {
-            if (event.key === 'Tab' && document.getElementById('tagMenu').style.display === 'block') {
+            dragParagraph(event, songIndex, paraIndex) {
+                event.dataTransfer.setData('text/plain', JSON.stringify({ type: 'paragraph', songIndex, paraIndex }));
+                event.target.classList.add('dragging');
+                event.dataTransfer.effectAllowed = 'move';
+            }
+
+            dropSong(event) {
                 event.preventDefault();
-            }
-        }
+                const data = JSON.parse(event.dataTransfer.getData('text/plain'));
+                if (data.type !== 'song') return;
 
-        function handleTextareaInput(event, textarea, songIndex) {
-            const curPos = textarea.selectionStart;
-            const text = textarea.value;
-            
-            lastCursorPosition = curPos;
-            
-            if (event.data === '#') {
-                showTagMenu(textarea, songIndex);
-            } else {
-                if (event.key === 'Escape') {
-                    hideTagMenu();
+                const draggedIndex = data.songIndex;
+                const container = this.elements.songsContainer;
+                const cards = Array.from(container.querySelectorAll('.card'));
+                let dropIndex = -1;
+
+                const containerRect = container.getBoundingClientRect();
+                const relativeY = event.clientY - containerRect.top;
+
+                for (let i = 0; i <= cards.length; i++) {
+                    if (i === cards.length) {
+                        dropIndex = i;
+                        break;
+                    }
+                    const card = cards[i];
+                    const cardRect = card.getBoundingClientRect();
+                    const cardTop = cardRect.top - containerRect.top;
+                    const cardHeight = cardRect.height;
+                    if (relativeY < cardTop + cardHeight / 2) {
+                        dropIndex = i;
+                        break;
+                    }
                 }
-            }
-        }
 
-        function showTagMenu(textarea, songIndex) {
-            const tagMenu = document.getElementById('tagMenu');
-            
-            tagMenu.innerHTML = `
-                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagVerse}', ${songIndex})">${messages[currentLang].tagVerse}</div>
-                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagChorus}', ${songIndex})">${messages[currentLang].tagChorus}</div>
-                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagBridge}', ${songIndex})">${messages[currentLang].tagBridge}</div>
-                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagInterlude}', ${songIndex})">${messages[currentLang].tagInterlude}</div>
-                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagOutro}', ${songIndex})">${messages[currentLang].tagOutro}</div>
-            `;
-            
-            const rect = textarea.getBoundingClientRect();
-            
-            tagMenu.style.top = `${rect.bottom + 5}px`;
-            tagMenu.style.left = `${rect.left}px`;
-            tagMenu.style.width = `${rect.width}px`;
-            tagMenu.style.display = 'block';
-            
-            document.addEventListener('click', hideTagMenuOnClickOutside);
-            
-            activeTextarea = textarea;
-        }
-
-        function hideTagMenuOnClickOutside(event) {
-            const tagMenu = document.getElementById('tagMenu');
-            if (!tagMenu.contains(event.target) && event.target !== activeTextarea) {
-                hideTagMenu();
-            }
-        }
-
-        function hideTagMenu() {
-            const tagMenu = document.getElementById('tagMenu');
-            tagMenu.style.display = 'none';
-            document.removeEventListener('click', hideTagMenuOnClickOutside);
-        }
-
-        function insertTag(tagName, songIndex) {
-            if (!activeTextarea) return;
-            
-            const curPos = lastCursorPosition;
-            const text = activeTextarea.value;
-            
-            const scrollTop = activeTextarea.scrollTop;
-            
-            const newText = text.substring(0, curPos - 1) + '#' + tagName + ' ' + text.substring(curPos);
-            
-            activeTextarea.value = newText;
-            
-            songs[songIndex].lyrics = newText;
-            
-            hideTagMenu();
-            
-            const newCursorPos = curPos - 1 + ('#' + tagName + ' ').length;
-            
-            requestAnimationFrame(() => {
-                activeTextarea.scrollTop = scrollTop;
-                activeTextarea.focus();
-                activeTextarea.setSelectionRange(newCursorPos, newCursorPos);
-                activeTextarea.scrollTop = scrollTop;
-                setTimeout(() => {
-                    updatePreview();
-                }, 0);
-            });
-        }
-
-        function dragParagraph(event, songIndex, paraIndex) {
-            event.dataTransfer.setData('text/plain', JSON.stringify({ songIndex, paraIndex }));
-            event.target.classList.add('dragging');
-        }
-
-        function allowDrop(event) {
-            event.preventDefault();
-            const container = event.currentTarget;
-            const blocks = container.querySelectorAll('.paragraph-block');
-            removeDropIndicators(container);
-
-            const rect = container.getBoundingClientRect();
-            let dropIndex = -1;
-            for (let i = 0; i < blocks.length; i++) {
-                const blockRect = blocks[i].getBoundingClientRect();
-                if (event.clientY < blockRect.top + blockRect.height / 2) {
-                    dropIndex = i;
-                    break;
+                if (dropIndex === -1) {
+                    dropIndex = cards.length;
                 }
+
+                if (draggedIndex === dropIndex || draggedIndex + 1 === dropIndex) {
+                    cards[draggedIndex].querySelector('.song-header').classList.remove('dragging');
+                    return;
+                }
+
+                const [draggedSong] = this.state.songs.splice(draggedIndex, 1);
+                this.state.songs.splice(dropIndex, 0, draggedSong);
+
+                if (this.state.currentSong === draggedIndex) {
+                    this.state.currentSong = dropIndex;
+                } else if (draggedIndex < this.state.currentSong && dropIndex >= this.state.currentSong) {
+                    this.state.currentSong--;
+                } else if (draggedIndex > this.state.currentSong && dropIndex <= this.state.currentSong) {
+                    this.state.currentSong++;
+                }
+
+                this.updateSongsContainer();
+                this.updatePreview();
             }
-            if (dropIndex === -1) dropIndex = blocks.length;
 
-            const indicator = document.createElement('div');
-            indicator.className = 'drop-indicator';
-            if (dropIndex === blocks.length) {
-                container.appendChild(indicator);
-            } else {
-                container.insertBefore(indicator, blocks[dropIndex]);
-            }
-        }
+            dropParagraph(event, songIndex, container, draggedIndex) {
+                event.preventDefault();
+                event.stopPropagation();
+                const blocks = Array.from(container.querySelectorAll('.paragraph-block'));
+                let dropIndex = -1;
+                const containerRect = container.getBoundingClientRect();
+                const mouseY = event.clientY;
 
-        function removeDropIndicators(container) {
-            const indicators = container.querySelectorAll('.drop-indicator');
-            indicators.forEach(ind => ind.remove());
-        }
+                if (blocks.length === 0) {
+                    dropIndex = 0;
+                } else {
+                    for (let i = 0; i < blocks.length; i++) {
+                        const block = blocks[i];
+                        const blockRect = block.getBoundingClientRect();
+                        const blockTop = blockRect.top;
+                        const blockHeight = blockRect.height;
+                        if (mouseY <= blockTop + blockHeight / 2) {
+                            dropIndex = i;
+                            break;
+                        }
+                    }
+                }
 
-        function dropParagraph(event, songIndex) {
-            event.preventDefault();
-            const data = JSON.parse(event.dataTransfer.getData('text/plain'));
-            if (data.songIndex !== songIndex) return;
+                if (dropIndex === -1) {
+                    dropIndex = blocks.length;
+                }
 
-            const draggedIndex = data.paraIndex;
-            const container = event.currentTarget;
-            const blocks = container.querySelectorAll('.paragraph-block');
-            let dropIndex = -1;
+                if (draggedIndex === dropIndex || draggedIndex + 1 === dropIndex) {
+                    if (blocks[draggedIndex]) {
+                        blocks[draggedIndex].classList.remove('dragging');
+                    }
+                    return;
+                }
 
-            for (let i = 0; i < blocks.length; i++) {
-                const rect = blocks[i].getBoundingClientRect();
-                if (event.clientY < rect.top + rect.height / 2) {
-                    dropIndex = i;
-                    break;
+                const song = this.state.songs[songIndex];
+                const [draggedPara] = song.paragraphs.splice(draggedIndex, 1);
+                song.paragraphs.splice(dropIndex, 0, draggedPara);
+
+                this.updateSongsContainer();
+                this.updatePreview();
+                if (this.state.activeMoveMenu && this.state.activeMoveMenuIndices?.songIndex === songIndex && draggedIndex === this.state.activeMoveMenuIndices.paraIndex) {
+                    this.updateMoveMenuPosition(songIndex, dropIndex);
                 }
             }
 
-            if (dropIndex === -1) dropIndex = blocks.length;
-
-            if (draggedIndex === dropIndex || draggedIndex + 1 === dropIndex) {
-                blocks[draggedIndex].classList.remove('dragging');
-                removeDropIndicators(container);
-                return;
+            setActiveTextarea(textarea, index) {
+                this.state.activeTextarea = textarea;
+                this.state.lastCursorPosition = textarea.selectionStart;
             }
 
-            const song = songs[songIndex];
-            const [draggedPara] = song.paragraphs.splice(draggedIndex, 1);
-            song.paragraphs.splice(dropIndex > draggedIndex ? dropIndex - 1 : dropIndex, 0, draggedPara);
-
-            removeDropIndicators(container);
-            updateSongsContainer();
-            updatePreview();
-            if (activeMoveMenu && activeMoveMenuIndices.songIndex === songIndex && draggedIndex === activeMoveMenuIndices.paraIndex) {
-                updateMoveMenuPosition(songIndex, dropIndex > draggedIndex ? dropIndex - 1 : dropIndex);
+            handleTextareaKeydown(event, textarea) {
+                if (event.key === 'Tab' && this.elements.tagMenu.style.display === 'block') {
+                    event.preventDefault();
+                }
             }
-        }
 
-        function addNewSong() {
-            songs.push({ title: '', lyrics: '', background: null, isParagraphMode: false, paragraphs: [] });
-            updateSongsContainer();
-        }
+            handleTextareaInput(event, textarea, songIndex) {
+                const curPos = textarea.selectionStart;
+                this.state.lastCursorPosition = curPos;
 
-        function removeSong(index) {
-            songs = songs.filter((_, i) => i !== index);
-            if (currentSong >= songs.length) {
-                currentSong = Math.max(0, songs.length - 1);
+                if (event.data === '#') {
+                    this.showTagMenu(textarea, songIndex);
+                } else if (event.key === 'Escape') {
+                    this.hideTagMenu();
+                }
             }
-            currentSlide = 0;
-            updateSongsContainer();
-            updatePreview();
-        }
 
-        function handleSongTitleChange(index, value) {
-            songs[index].title = value;
-            updatePreview();
-        }
+            showTagMenu(textarea, songIndex) {
+                const tags = [
+                    this.messages[this.state.currentLang].tagVerse,
+                    this.messages[this.state.currentLang].tagChorus,
+                    this.messages[this.state.currentLang].tagBridge,
+                    this.messages[this.state.currentLang].tagInterlude,
+                    this.messages[this.state.currentLang].tagOutro
+                ];
 
-        function handleLyricsChange(index, value) {
-            const isFromInsertTag = activeTextarea && activeTextarea === document.activeElement;
-            songs[index].lyrics = value;
-            if (!isFromInsertTag || document.getElementById('tagMenu').style.display !== 'block') {
-                updatePreview();
+                this.elements.tagMenu.innerHTML = tags.map(tag => `
+                    <div class="tag-menu-item" data-tag="${tag}" data-index="${songIndex}">${tag}</div>
+                `).join('');
+
+                const rect = textarea.getBoundingClientRect();
+                this.elements.tagMenu.style.top = `${rect.bottom + 8}px`;
+                this.elements.tagMenu.style.left = `${rect.left}px`;
+                this.elements.tagMenu.style.width = `${rect.width}px`;
+                this.elements.tagMenu.style.display = 'block';
+
+                this.state.activeTextarea = textarea;
             }
-        }
 
-        function handleImageUpload(index, input) {
-            const file = input.files[0];
-            if (file) {
+            hideTagMenu() {
+                this.elements.tagMenu.style.display = 'none';
+                this.state.activeTextarea = null;
+            }
+
+            insertTag(tagName, songIndex) {
+                if (!this.state.activeTextarea) return;
+
+                const curPos = this.state.lastCursorPosition;
+                const text = this.state.activeTextarea.value;
+                const scrollTop = this.state.activeTextarea.scrollTop;
+                const newText = text.substring(0, curPos - 1) + '#' + tagName + '\n' + text.substring(curPos);
+
+                this.state.activeTextarea.value = newText;
+                this.state.songs[songIndex].lyrics = newText;
+                this.hideTagMenu();
+
+                const newCursorPos = curPos - 1 + ('#' + tagName + '\n').length;
+                requestAnimationFrame(() => {
+                    this.state.activeTextarea.setSelectionRange(newCursorPos, newCursorPos);
+                    this.state.activeTextarea.scrollTop = scrollTop;
+                    this.state.activeTextarea.focus();
+                    this.handleLyricsChange(songIndex, newText);
+                });
+            }
+
+            addNewSong() {
+                this.state.songs.push({
+                    title: '',
+                    lyrics: '',
+                    background: null,
+                    isParagraphMode: false,
+                    paragraphs: [],
+                    isCollapsed: false
+                });
+                this.state.currentSong = this.state.songs.length - 1;
+                this.state.currentSlide = 0;
+                this.updateSongsContainer();
+                this.updatePreview();
+            }
+
+            removeSong(songIndex) {
+                if (this.state.songs.length <= 1) {
+                    alert(this.messages[this.state.currentLang].noLyricsAlert);
+                    return;
+                }
+                this.state.songs.splice(songIndex, 1);
+                if (this.state.currentSong >= this.state.songs.length) {
+                    this.state.currentSong = this.state.songs.length - 1;
+                }
+                this.state.currentSlide = 0;
+                this.updateSongsContainer();
+                this.updatePreview();
+            }
+
+            handleSongTitleChange(songIndex, title) {
+                this.state.songs[songIndex].title = title;
+                this.updatePreview();
+            }
+
+            handleLyricsChange(songIndex, lyrics) {
+                this.state.songs[songIndex].lyrics = lyrics;
+                if (this.state.songs[songIndex].isParagraphMode) {
+                    this.state.songs[songIndex].paragraphs = this.parseParagraphs(lyrics);
+                    this.updateSongsContainer();
+                }
+                this.updatePreview();
+            }
+
+            handleImageUpload(songIndex, input) {
+                const file = input.files[0];
+                if (!file) return;
+
                 const reader = new FileReader();
-                reader.onloadend = () => {
-                    songs[index].background = reader.result;
-                    updateSongsContainer();
-                    updatePreview();
+                reader.onload = (e) => {
+                    this.state.songs[songIndex].background = e.target.result;
+                    this.updateSongsContainer();
+                    this.updatePreview();
                 };
                 reader.readAsDataURL(file);
             }
-        }
 
-        function updatePreview() {
-            const preview = document.getElementById('preview');
-            const previewContent = document.getElementById('previewContent');
-            const lyricsFontSize = document.getElementById('lyricsFontSize').value;
-            const lyricsLineHeight = document.getElementById('lyricsLineHeight').value;
-            const previewPosition = document.getElementById('position').value;
-            const aspectRatio = document.getElementById('aspectRatio').value;
-            const maskOpacity = document.getElementById('maskOpacity').value;
-            const showTextBg = document.getElementById('showTextBg').checked;
-            const showInfo = document.getElementById('showInfo').checked;
-
-            const [width, height] = aspectRatio.split(':').map(Number);
-            preview.style.paddingTop = `${(height / width) * 100}%`;
-
-            const baseWidth = 1280;
-            const previewWidth = preview.offsetWidth;
-            const scaleFactor = previewWidth / baseWidth;
-            
-            const pptFontSize = Math.round(lyricsFontSize * 1.75);
-            const scaledFontSize = pptFontSize * scaleFactor;
-
-            const song = songs[currentSong];
-            let slides = [];
-            if (song.isParagraphMode) {
-                slides = parseLyrics(song.paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n'));
-            } else {
-                slides = parseLyrics(song?.lyrics || '');
-            }
-            const currentSlideData = slides[currentSlide];
-
-            if (currentSlideData && song) {
-                previewContent.style.backgroundImage = song.background 
-                    ? `url(${song.background})`
-                    : 'linear-gradient(to right bottom, #4a5568, #2d3748)';
-                previewContent.style.backgroundSize = 'cover';
-                previewContent.style.backgroundPosition = 'center';
-
-                previewContent.innerHTML = `
-                    <div style="position: absolute; inset: 0; background-color: black; opacity: ${maskOpacity};"></div>
-                    <div class="preview-text-container" style="justify-content: ${previewPosition};">
-                        <div class="preview-text" style="
-                            font-size: ${scaledFontSize}px;
-                            line-height: ${lyricsLineHeight};
-                            ${showTextBg ? 'background-color: rgba(0,0,0,0.5);' : ''}
-                        ">
-                            ${currentSlideData.content.split('\n').join('<br>')}
-                        </div>
-                    </div>
-                    ${showInfo ? `
-                    <div style="
-                        position: absolute;
-                        bottom: 8px;
-                        right: 8px;
-                        padding: 4px 6px;
-                        border-radius: 4px;
-                        font-size: ${Math.max(14, 18 * scaleFactor)}px;
-                        ${showTextBg ? 'background-color: rgba(0,0,0,0.5);' : ''}
-                    ">
-                        <div>${currentSlideData.type}</div>
-                        <div>${song.title}</div>
-                    </div>
-                    ` : ''}
-                `;
-
-                document.getElementById('slideInfo').textContent = 
-                    `${currentSlide + 1} / ${slides.length} - ${messages[currentLang].song} ${currentSong + 1} ${messages[currentLang].songUnit}`;
-            }
-        }
-
-        async function exportSlides() {
-            if (songs.length === 0 || !songs.some(song => song.lyrics.trim() || song.paragraphs.length)) {
-                alert('請先新增歌曲並輸入歌詞');
-                return;
-            }
-
-            try {
-                const pptx = new PptxGenJS();
-                const aspectRatio = document.getElementById('aspectRatio').value;
-                const lyricsFontSize = document.getElementById('lyricsFontSize').value;
-                const maskOpacity = document.getElementById('maskOpacity').value;
-                const previewPosition = document.getElementById('position').value;
-                const showTextBg = document.getElementById('showTextBg').checked;
-                const showInfo = document.getElementById('showInfo').checked;
-
-                if (aspectRatio === '4:3') {
-                    pptx.layout = 'LAYOUT_4x3';
-                } else {
-                    pptx.layout = 'LAYOUT_WIDE';
+            updatePreview() {
+                const song = this.state.songs[this.state.currentSong];
+                if (!song) {
+                    this.elements.previewContent.innerHTML = '';
+                    this.elements.slideInfo.textContent = '0 / 0';
+                    return;
                 }
 
-                const pptFontSize = Math.round(lyricsFontSize * 1.75);
+                const sections = song.isParagraphMode
+                    ? song.paragraphs.map(p => ({ type: p.type, content: p.content }))
+                    : this.parseLyrics(song.lyrics);
 
-                for (const song of songs) {
-                    let slides = [];
-                    if (song.isParagraphMode) {
-                        slides = parseLyrics(song.paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n'));
-                    } else {
-                        if (!song.lyrics.trim()) continue;
-                        slides = parseLyrics(song.lyrics);
-                    }
+                if (sections.length === 0) {
+                    this.elements.previewContent.innerHTML = '<div class="preview-text-container"><p class="preview-text">無歌詞內容</p></div>';
+                    this.elements.slideInfo.textContent = '0 / 0';
+                    return;
+                }
 
-                    for (const slideData of slides) {
-                        const slide = pptx.addSlide();
-                        
+                const slideIndex = Math.min(this.state.currentSlide, sections.length - 1);
+                const section = sections[slideIndex];
+
+                const fontSize = this.elements.lyricsFontSize.value + 'px';
+                const lineHeight = this.elements.lyricsLineHeight.value;
+                const position = this.elements.position.value;
+                const aspectRatio = this.elements.aspectRatio.value;
+                const maskOpacity = this.elements.maskOpacity.value;
+                const showTextBg = this.elements.showTextBg.checked;
+                const showInfo = this.elements.showInfo.checked;
+
+                const [width, height] = aspectRatio === '16:9' ? [640, 360] : [480, 360];
+                this.elements.preview.style.width = `${width}px`;
+                this.elements.preview.style.height = `${height}px`;
+
+                const backgroundStyle = song.background
+                    ? `background-image: url('${song.background}'); background-size: cover;`
+                    : 'background-color: #000;';
+
+                const maskStyle = `background-color: rgba(0,0,0,${maskOpacity}); position: absolute; top: 0; left: 0; width: 100%; height: 100%;`;
+                const textBgStyle = showTextBg ? 'background-color: rgba(0,0,0,0.5);' : '';
+                const textStyle = `font-size: ${fontSize}; line-height: ${lineHeight}; color: white; ${textBgStyle}`;
+                const containerStyle = `justify-content: ${position};`;
+
+                const infoText = showInfo
+                    ? `<div style="position: absolute; bottom: 10px; right: 10px; font-size: 12px; color: white;">
+                        ${song.title ? `${song.title} - ` : ''}${section.type}
+                    </div>`
+                    : '';
+
+                const content = `
+                    <div style="${backgroundStyle} width: 100%; height: 100%; position: relative;">
+                        <div style="${maskStyle}"></div>
+                        <div class="preview-text-container" style="${containerStyle}">
+                            <p class="preview-text" style="${textStyle}">${section.content.replace(/\n/g, '<br>')}</p>
+                        </div>
+                        ${infoText}
+                    </div>
+                `;
+
+                this.elements.previewContent.innerHTML = content;
+                this.elements.slideInfo.textContent = `${slideIndex + 1} / ${sections.length} - ${this.messages[this.state.currentLang].song} ${this.state.currentSong + 1} ${this.messages[this.state.currentLang].songUnit}`;
+            }
+
+            prevSlide() {
+                if (this.state.currentSlide > 0) {
+                    this.state.currentSlide--;
+                    this.updatePreview();
+                }
+            }
+
+            nextSlide() {
+                const song = this.state.songs[this.state.currentSong];
+                const sections = song.isParagraphMode
+                    ? song.paragraphs
+                    : this.parseLyrics(song.lyrics);
+
+                if (this.state.currentSlide < sections.length - 1) {
+                    this.state.currentSlide++;
+                    this.updatePreview();
+                }
+            }
+
+            async exportSlides() {
+                if (this.state.songs.length === 0 || !this.state.songs.some(song => song.lyrics || song.paragraphs.length)) {
+                    alert(this.messages[this.state.currentLang].noLyricsAlert);
+                    return;
+                }
+
+                const pres = new PptxGenJS();
+                pres.layout = 'LAYOUT_16x9';
+
+                for (let songIndex = 0; songIndex < this.state.songs.length; songIndex++) {
+                    const song = this.state.songs[songIndex];
+                    const sections = song.isParagraphMode
+                        ? song.paragraphs
+                        : this.parseLyrics(song.lyrics);
+
+                    for (let i = 0; i < sections.length; i++) {
+                        const section = sections[i];
+                        const slide = pres.addSlide();
+
                         if (song.background) {
                             slide.background = { data: song.background };
-                        } else {
-                            slide.background = { color: '000000' };
                         }
 
-                        if (Number(maskOpacity) > 0) {
-                            slide.addShape('rect', {
-                                x: '0%',
-                                y: '0%',
+                        const fontSize = Number(this.elements.lyricsFontSize.value);
+                        const lineHeight = Number(this.elements.lyricsLineHeight.value);
+                        const position = this.elements.position.value;
+                        const maskOpacity = Number(this.elements.maskOpacity.value);
+                        const showTextBg = this.elements.showTextBg.checked;
+                        const showInfo = this.elements.showInfo.checked;
+
+                        if (maskOpacity > 0) {
+                            slide.addShape(pres.shapes.RECTANGLE, {
+                                x: 0,
+                                y: 0,
                                 w: '100%',
                                 h: '100%',
-                                fill: { color: '000000', transparency: Math.round((1 - Number(maskOpacity)) * 100) }
+                                fill: { color: '000000', transparency: (1 - maskOpacity) * 100 }
                             });
                         }
 
-                        let textY, textValign;
-                        switch (previewPosition) {
-                            case 'flex-start': 
-                                textY = '5%'; 
-                                textValign = 'top';
-                                break;
-                            case 'flex-end': 
-                                textY = '60%'; 
-                                textValign = 'bottom';
-                                break;
-                            default: 
-                                textY = '35%';
-                                textValign = 'middle';
+                        const textBoxHeight = fontSize * lineHeight * section.content.split('\n').length;
+                        let yPos;
+                        if (position === 'flex-start') {
+                            yPos = 0.5;
+                        } else if (position === 'center') {
+                            yPos = (7.5 - textBoxHeight / 72) / 2;
+                        } else {
+                            yPos = 7.5 - textBoxHeight / 72 - 0.5;
                         }
 
-                        if (showTextBg) {
-                            slide.addShape('rect', {
-                                x: '5%',
-                                y: textY,
-                                w: '90%',
-                                h: '40%',
-                                fill: { color: '000000', transparency: 50 }
-                            });
-                        }
-
-                        const lines = slideData.content.split('\n');
-                        const formattedLines = lines.map(line => ({
-                            text: line,
-                            options: {
-                                fontSize: pptFontSize,
-                                color: 'FFFFFF',
-                                bold: true,
-                                breakLine: true
-                            }
-                        }));
-
-                        slide.addText(formattedLines, {
-                            x: '5%',
-                            y: textY,
-                            w: '90%',
-                            h: '30%',
+                        slide.addText(section.content, {
+                            x: 0.5,
+                            y: yPos,
+                            w: 9,
+                            h: textBoxHeight / 72,
+                            fontSize: fontSize,
+                            color: 'FFFFFF',
                             align: 'center',
-                            valign: textValign,
-                            fontFace: 'Arial'
+                            lineSpacing: fontSize * lineHeight,
+                            fill: showTextBg ? { color: '000000', transparency: 50 } : null
                         });
 
                         if (showInfo) {
-                            const info = [
-                                { 
-                                    text: slideData.type,
-                                    options: { 
-                                        fontSize: 15,
-                                        bold: true,
-                                        color: 'FFFFFF',
-                                        breakLine: true
-                                    }
-                                },
-                                { 
-                                    text: song.title,
-                                    options: { 
-                                        fontSize: 15,
-                                        color: 'FFFFFF'
-                                    }
+                            slide.addText(
+                                `${song.title ? `${song.title} - ` : ''}${section.type}`,
+                                {
+                                    x: 8.5,
+                                    y: 6.8,
+                                    w: 1.5,
+                                    h: 0.5,
+                                    fontSize: 12,
+                                    color: 'FFFFFF',
+                                    align: 'right'
                                 }
-                            ];
-                            
-                            slide.addText(info, {
-                                x: '73%',
-                                y: '90%',
-                                w: '25%',
-                                h: '10%',
-                                align: 'right',
-                                fill: showTextBg ? { color: '000000', transparency: 50 } : undefined
-                            });
+                            );
                         }
                     }
                 }
 
-                const now = new Date();
-                const timestamp = `${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}`;
-                const fileName = `歌詞投影片_${timestamp}.pptx`;
-
-                const blob = await pptx.write('blob');
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-
-            } catch (error) {
-                console.error('Export error:', error);
-                alert('匯出過程發生錯誤，請檢查歌詞內容是否正確');
+                await pres.writeFile('LyricsSlides');
             }
-        }
 
-        function nextSlide() {
-            let slides = [];
-            const song = songs[currentSong];
-            if (song.isParagraphMode) {
-                slides = parseLyrics(song.paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n'));
-            } else {
-                slides = parseLyrics(song?.lyrics || '');
-            }
-            if (currentSlide < slides.length - 1) {
-                currentSlide++;
-            } else if (currentSong < songs.length - 1) {
-                currentSong++;
-                currentSlide = 0;
-            }
-            updatePreview();
-        }
-
-        function prevSlide() {
-            if (currentSlide > 0) {
-                currentSlide--;
-            } else if (currentSong > 0) {
-                currentSong--;
-                let slides = [];
-                const song = songs[currentSong];
-                if (song.isParagraphMode) {
-                    slides = parseLyrics(song.paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n'));
-                } else {
-                    slides = parseLyrics(song.lyrics);
+            handleDocumentClick(event) {
+                if (!this.elements.tagMenu.contains(event.target) && !event.target.classList.contains('lyrics-textarea')) {
+                    this.hideTagMenu();
                 }
-                currentSlide = slides.length - 1;
+                if (!this.elements.moveMenu.contains(event.target) && !event.target.classList.contains('drag-handle')) {
+                    this.hideMoveMenu();
+                }
+                if (!this.elements.imageMenu.contains(event.target) && !event.target.classList.contains('thumbnail')) {
+                    this.hideImageMenu();
+                }
             }
-            updatePreview();
         }
 
-        window.addEventListener('resize', updatePreview);
-        
-        document.addEventListener('click', function(event) {
-            const tagMenu = document.getElementById('tagMenu');
-            if (tagMenu.style.display === 'block' && 
-                !tagMenu.contains(event.target) && 
-                !event.target.classList.contains('lyrics-textarea')) {
-                hideTagMenu();
-            }
-        });
-        
-        document.querySelector('.author-description').textContent = messages[currentLang].authorDesc;
-        updateSongsContainer();
-        updatePreview();
+        const editor = new LyricsEditor();
     </script>
 </body>
 </html>
