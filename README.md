@@ -69,3 +69,76 @@ Messages Update: Added showInfo key to the messages object for language-specific
 Preview Rendering: Modified updatePreview to conditionally render the bottom-right info div based on showInfo state, aligning with V1.1.1's approach but simplified.
 Export Enhancement: Updated exportSlides to include info text only when showInfo is checked, improving flexibility for exported presentations.
 
+
+Version 1.3.0
+Enhancements
+
+Improved UI Layout: Adopted a grid-based layout using CSS Grid for better responsiveness, with a single-column layout for mobile devices (below 768px) and a two-column layout for larger screens.
+Enhanced Styling: Updated the overall aesthetic with a modern, clean design:
+Increased border-radius for cards and buttons to 8px for a softer look.
+Added subtle box-shadows to cards and footer for depth.
+Improved button transitions with hover and active states for better interactivity.
+
+
+Language Switching: Implemented a toggle switch for seamless language switching between Chinese (zh) and English (en), dynamically updating all UI text and placeholders.
+Paragraph Mode: Introduced a paragraph-based editing mode:
+Users can toggle between text and paragraph modes using a switch.
+Paragraph mode allows drag-and-drop reordering, copying, and deleting of lyric sections.
+Added a move menu for precise paragraph repositioning (up/down).
+
+
+Image Upload and Management: Added support for background image uploads per song, with a context menu for replacing or deleting images.
+Slide Preview Controls: Enhanced preview section with controls for font size, line height, position, aspect ratio, mask opacity, text background, and info display.
+Export Functionality: Integrated PptxGenJS for exporting slides to PowerPoint, supporting custom backgrounds, text formatting, and layout options.
+Tag Menu: Added a context-sensitive tag menu that appears when typing '#', allowing quick insertion of lyric section tags (e.g., Verse, Chorus).
+
+Bug Fixes
+
+Fixed issues with slide navigation to prevent out-of-bounds errors when switching songs or slides.
+Ensured proper cursor positioning after tag insertion in textareas.
+Resolved issues with drag-and-drop functionality to prevent incorrect paragraph reordering.
+
+Version 1.4.0
+Enhancements
+
+Branding and Naming: Renamed the application to "LySlide" with a new tagline, "From Lyrics to Slides, Effortlessly," reflected in the UI and page title.
+Material Icons Integration: Replaced SVG icons with Google Material Icons for a more consistent and professional look, used in buttons, toggles, and upload controls.
+Refined UI/UX:
+Increased padding and margins (e.g., body padding to 24px, card padding to 24px) for better spacing.
+Updated button styles with circular outlines for preview controls and a more prominent primary button style.
+Improved toggle switch design with Material Icons for text/paragraph modes.
+Enhanced input fields and textareas with focus states (green border) and smoother transitions.
+
+
+Preview Controls:
+Added dedicated buttons for previous/next song navigation, refresh preview, and export, improving usability.
+Moved export button to the control-buttons section for better accessibility.
+Updated slideInfo to always reflect the correct slide and song count, even with empty songs.
+
+
+Tag Menu Navigation: Added keyboard navigation (Arrow Up/Down, Enter) for the tag menu, with visual selection feedback (selected tag highlighted).
+Responsive Design: Adjusted the mobile breakpoint to 767px and ensured all elements (e.g., buttons, menus) scale appropriately on smaller screens.
+Error Handling:
+Improved parseLyrics to handle empty or invalid lyrics by returning a default empty slide.
+Enhanced updatePreview to validate currentSong and currentSlide, preventing crashes with empty song lists.
+
+
+Performance Optimization:
+Optimized updateSongsContainer to reduce DOM manipulations.
+Added transition effects for preview refresh to improve visual feedback.
+
+
+
+Bug Fixes
+
+Fixed issues with tag menu persistence when clicking outside or switching textareas.
+Resolved inconsistencies in slide navigation when switching songs with different slide counts.
+Corrected z-index issues with menus (tag, move, image) to ensure they appear above other elements.
+Fixed export functionality to skip empty songs and handle edge cases with invalid slide data.
+
+Known Issues
+
+XLSX File Handling: The loadFileData function remains unused in both versions, indicating potential incomplete integration for XLSX file support.
+Accessibility: Keyboard navigation for move and image menus is not yet implemented.
+Performance: Large song lists with many paragraphs may cause slight delays in updateSongsContainer; further optimization needed.
+
