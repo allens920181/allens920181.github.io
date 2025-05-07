@@ -42,7 +42,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歌詞編輯器</title>
+    <title>LySlide</title>
+    <!-- 引入 Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8221154886029506"
      crossorigin="anonymous"></script>
 <style>
@@ -54,30 +56,34 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.6;
-            padding: 20px;
-            max-width: 1200px;
+            line-height: 1.8;
+            padding: 16px;
+            max-width: 100%;
             margin: 0 auto;
-            background-color: #f5f5f5;
+            background-color: #f9fafb;
+            overflow-x: hidden;
         }
 
         .container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 50vw;
+            min-width: 600px;
+            margin: 0 auto;
         }
 
-        @media (min-width: 768px) {
-            .container {
-                grid-template-columns: 1fr 1fr;
-            }
+        .editor-section, .preview-section {
+            width: 100%;
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .lang-switch {
@@ -88,66 +94,124 @@
 
         .btn {
             padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 12px;
-            transition: background-color 0.3s;
+            font-size: 14px;
+            transition: all 0.3s ease;
             white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            width: auto;
+            max-width: 100%;
+        }
+
+        .btn:hover {
+            background-color: #f1f5f9;
+            border-color: #4CAF50;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+            background-color: #e6f0ea;
         }
 
         .btn-primary {
             background-color: #4CAF50;
             color: white;
+            border-color: #4CAF50;
+        }
+
+        .btn-primary:hover {
+            background-color: #48bb78;
+            border-color: #48bb78;
+        }
+
+        .btn-primary:active {
+            background-color: #38a169;
         }
 
         .btn-outline {
-            background-color: transparent;
-            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid #e2e8f0;
+            background-color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            background-color: #f1f5f9;
+            border-color: #4CAF50;
+        }
+
+        .btn-outline:active {
+            transform: scale(0.95);
+            background-color: #e6f0ea;
+        }
+
+        .btn-outline i {
+            font-size: 18px;
+            color: #666;
+        }
+
+        .btn-outline:hover i {
+            color: #4CAF50;
         }
 
         .card {
             background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 16px;
             position: relative;
+            width: 100%;
         }
 
         .song-input {
-            width: calc(100% - 28px);
+            flex: 2;
             padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
             font-size: 14px;
+            transition: border-color 0.3s ease;
+            width: 100%;
+        }
+
+        .song-input:focus {
+            outline: none;
+            border-color: #4CAF50;
         }
 
         .lyrics-textarea {
             width: 100%;
-            height: 200px;
+            height: 150px;
             padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            margin-bottom: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
             resize: vertical;
             font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .lyrics-textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
         }
 
         .preview-container {
             position: relative;
             width: 100%;
             background-color: #000;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
-        }
-
-        .preview-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
         }
 
         .preview-content {
@@ -159,9 +223,9 @@
             display: flex;
             flex-direction: column;
             color: white;
-            padding: 20px;
+            padding: 1.5625%; /* 20px / 1280px */
         }
-        
+
         .preview-text-container {
             position: relative;
             z-index: 1;
@@ -170,50 +234,63 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         .preview-text {
             margin: 0 5%;
-            padding: 16px;
+            padding: 1.25%; /* 16px / 1280px */
         }
 
         .preview-controls {
-            margin-top: 20px;
+            margin-top: 16px;
             display: flex;
-            gap: 10px;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .control-group {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
         }
 
         .control-group label {
             font-size: 12px;
             white-space: nowrap;
+            color: #4a5568;
+        }
+
+        .control-group input[type="number"],
+        .control-group select {
+            padding: 4px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 12px;
+            width: auto;
+            max-width: 100px;
         }
 
         .upload-button {
             position: relative;
             overflow: hidden;
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            height: 34px;
-            width: 120px;
-            display: inline-flex;
+            background-color: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 50%;
+            height: 32px;
+            width: 32px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
-            padding: 0 8px;
-            gap: 6px;
+            transition: all 0.3s ease;
+            margin-left: 8px;
         }
 
         .upload-button:hover {
-            background-color: #e9ecef;
+            background-color: #e2e8f0;
+            border-color: #4CAF50;
         }
 
         .upload-button input[type="file"] {
@@ -227,22 +304,20 @@
         }
 
         .upload-icon {
-            width: 20px;
-            height: 20px;
+            font-size: 16px;
             color: #666;
+            transition: color 0.3s ease;
         }
 
-        .upload-text {
-            font-size: 12px;
-            color: #333;
-            white-space: nowrap;
+        .upload-button:hover .upload-icon {
+            color: #4CAF50;
         }
 
         .thumbnail {
             width: 20px;
             height: 20px;
             object-fit: cover;
-            border-radius: 2px;
+            border-radius: 50%;
             cursor: pointer;
         }
 
@@ -251,18 +326,20 @@
             height: 20px;
             cursor: pointer;
             color: #666;
-            transition: color 0.2s;
+            transition: all 0.3s ease;
+            padding: 4px;
+            border-radius: 50%;
+            background-color: #f1f5f9;
         }
 
         .action-icon:hover {
             color: #4CAF50;
+            background-color: #e6f0ea;
         }
 
         .song-delete-icon {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
+            position: static;
+            align-self: center;
         }
 
         .paragraph-action-icon {
@@ -272,23 +349,24 @@
         .image-menu {
             position: absolute;
             background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             z-index: 10;
             display: none;
             flex-direction: column;
-            padding: 4px;
+            padding: 6px;
         }
 
         .image-menu-item {
-            padding: 4px 8px;
+            padding: 6px 12px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
             font-size: 12px;
-            transition: background-color 0.2s;
+            border-radius: 6px;
+            transition: all 0.3s ease;
         }
 
         .image-menu-item:hover {
@@ -301,69 +379,28 @@
             height: 16px;
         }
 
-        .footer {
-            margin-top: 40px;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
-        }
-
-        .footer-content {
-            max-width: 800px;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        .author-info {
-            line-height: 1.6;
-        }
-
-        .author-name {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .author-email {
-            margin-bottom: 8px;
-            font-size: 12px;
-        }
-
-        .author-email a {
-            color: #4CAF50;
-            text-decoration: none;
-        }
-
-        .author-email a:hover {
-            text-decoration: underline;
-        }
-
-        .author-description {
-            color: #666;
-            font-size: 12px;
-        }
-
         /* 標籤選單 */
         .tag-menu {
             position: absolute;
             background-color: white;
-            border: 1px solid #ddd;
+            border: 1px solid #e2e8f0;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             z-index: 10;
             display: none;
             white-space: nowrap;
             overflow: hidden;
+            max-width: 90vw;
         }
 
         .tag-menu-item {
-            padding: 8px 12px;
+            padding: 8px 16px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: background-color 0.3s ease;
             text-align: center;
             display: inline-block;
             font-size: 12px;
+            border-radius: 6px;
         }
 
         .tag-menu-item:hover {
@@ -371,24 +408,29 @@
             color: white;
         }
 
+        .tag-menu-item.selected {
+            background-color: #4CAF50;
+            color: white;
+        }
+
         /* 段落區塊樣式 */
         .paragraph-block {
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            background-color: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
             padding: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             cursor: move;
             position: relative;
             display: flex;
             align-items: center;
-            height: 60px;
+            height: 50px;
             overflow: hidden;
-            transition: box-shadow 0.2s;
+            transition: box-shadow 0.3s ease;
         }
 
         .paragraph-block:hover {
-            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+            box-shadow: 0 0 12px rgba(76, 175, 80, 0.3);
         }
 
         .paragraph-block.dragging {
@@ -405,12 +447,13 @@
         .paragraph-header {
             font-weight: bold;
             margin-bottom: 4px;
-            font-size: 14px;
+            font-size: 12px;
+            color: #2d3748;
         }
 
         .paragraph-preview {
-            color: #666;
-            font-size: 12px;
+            color: #4a5568;
+            font-size: 10px;
         }
 
         .paragraph-actions {
@@ -424,34 +467,39 @@
             cursor: pointer;
             color: #666;
             flex-shrink: 0;
-            transition: transform 0.2s, color 0.2s;
+            transition: transform 0.3s ease, color 0.3s ease;
+            padding: 4px;
+            border-radius: 50%;
+            background-color: #f1f5f9;
         }
 
         .drag-handle:hover {
-            transform: scale(1.2);
+            transform: scale(1.1);
             color: #4CAF50;
+            background-color: #e6f0ea;
         }
 
         .move-menu {
             position: absolute;
             background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             z-index: 10;
             display: none;
             flex-direction: column;
-            padding: 4px;
+            padding: 6px;
         }
 
         .move-menu-item {
-            padding: 4px 8px;
+            padding: 6px 12px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
             font-size: 12px;
-            transition: background-color 0.2s;
+            border-radius: 6px;
+            transition: all 0.3s ease;
         }
 
         .move-menu-item:hover {
@@ -468,8 +516,9 @@
         .toggle-switch {
             position: relative;
             display: inline-block;
-            flex: 1;
-            height: 34px;
+            width: 50px;
+            height: 28px;
+            margin-left: 8px;
         }
 
         .toggle-switch input {
@@ -485,9 +534,9 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #ccc;
-            border-radius: 4px;
-            transition: 0.3s;
+            background-color: #e2e8f0;
+            border-radius: 14px;
+            transition: 0.3s ease;
         }
 
         .slider.active {
@@ -497,13 +546,13 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 26px;
+            height: 20px;
             width: 50%;
             left: 4px;
             bottom: 4px;
             background-color: white;
-            border-radius: 4px;
-            transition: 0.3s;
+            border-radius: 10px;
+            transition: 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -519,19 +568,16 @@
             transform: translateY(-50%);
             width: 50%;
             text-align: center;
-            font-size: 12px;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s ease;
         }
 
         .toggle-label.text {
             left: 4px;
-            color: #ccc;
             opacity: 1;
         }
 
         .toggle-label.paragraph {
             right: 4px;
-            color: #4CAF50;
             opacity: 0;
         }
 
@@ -547,8 +593,8 @@
         .lang-toggle-switch {
             position: relative;
             display: inline-block;
-            width: 60px;
-            height: 34px;
+            width: 50px;
+            height: 28px;
         }
 
         .lang-toggle-switch input {
@@ -564,9 +610,9 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #ccc;
-            border-radius: 4px;
-            transition: 0.3s;
+            background-color: #e2e8f0;
+            border-radius: 14px;
+            transition: 0.3s ease;
         }
 
         .lang-slider.active {
@@ -576,13 +622,13 @@
         .lang-slider:before {
             position: absolute;
             content: "";
-            height: 26px;
+            height: 20px;
             width: 50%;
             left: 4px;
             bottom: 4px;
             background-color: white;
-            border-radius: 4px;
-            transition: 0.3s;
+            border-radius: 10px;
+            transition: 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -598,8 +644,8 @@
             transform: translateY(-50%);
             width: 50%;
             text-align: center;
-            font-size: 12px;
-            transition: opacity 0.3s;
+            font-size: 10px;
+            transition: opacity 0.3s ease;
             color: #4CAF50;
         }
 
@@ -621,21 +667,75 @@
             opacity: 1;
         }
 
-        /* 按鈕容器 */
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            width: 100%;
-            align-items: center;
-        }
-
         /* 拖曳插入線 */
         .drop-indicator {
             height: 2px;
             background-color: #4CAF50;
-            margin: 5px 0;
+            margin: 6px 0;
             width: 100%;
+        }
+
+        /* 輸入框、滑動開關和背景圖片按鈕的容器 */
+        .song-input-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* 調整 Material Icons 的樣式 */
+        .toggle-label i {
+            font-size: 14px;
+            color: #4CAF50;
+        }
+
+        /* 控制按鈕容器 */
+        .control-buttons {
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 767px) {
+            body {
+                padding: 8px;
+            }
+            .container {
+                max-width: 90vw;
+                min-width: unset;
+            }
+            .btn {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+            .btn-outline {
+                width: 32px;
+                height: 32px;
+            }
+            .btn-outline i {
+                font-size: 16px;
+            }
+            .card {
+                padding: 12px;
+            }
+            .song-input, .lyrics-textarea {
+                font-size: 12px;
+            }
+            .control-group label {
+                font-size: 10px;
+            }
+            .control-group input[type="number"],
+            .control-group select {
+                font-size: 10px;
+                max-width: 80px;
+            }
+            .preview-controls {
+                font-size: 12px;
+            }
         }
 </style>
 </head>
@@ -643,7 +743,10 @@
     <div class="container">
         <div class="editor-section">
             <div class="header">
-                <h1>歌詞編輯器</h1>
+                <div>
+                    <h1>LySlide</h1>
+                    <h2 style="font-size: 14px; color: #4a5568; margin-top: 4px;">From Lyrics to Slides, Effortlessly.</h2>
+                </div>
                 <div class="lang-switch">
                     <label class="lang-toggle-switch">
                         <input type="checkbox" onchange="switchLanguage(this.checked ? 'en' : 'zh')">
@@ -656,19 +759,15 @@
             </div>
 
             <div id="songs-container"></div>
-            <button class="btn btn-primary" onclick="addNewSong()" style="width: 100%; margin-top: 10px; font-size: 18px;">+</button>
+            <button class="btn btn-primary" onclick="addNewSong()" style="width: 100%; margin-top: 8px; font-size: 16px;">+</button>
         </div>
 
         <div class="preview-section">
-            <div class="preview-header">
-                <h2>投影片預覽</h2>
-                <button class="btn btn-primary" onclick="exportSlides()">導出投影片</button>
-            </div>
             <div class="card">
                 <div class="control-group">
                     <label>歌詞大小:</label>
-                    <input type="number" min="12" max="72" value="32" id="lyricsFontSize" onchange="updatePreview()">
-                    <span>px</span>
+                    <input type="number" min="12" max="72" value="54" id="lyricsFontSize" onchange="updatePreview()">
+                    <span>pt</span>
                 </div>
                 <div class="control-group">
                     <label>歌詞行距:</label>
@@ -712,9 +811,15 @@
             </div>
 
             <div class="preview-controls">
-                <button class="btn btn-outline" onclick="prevSlide()" id="prevButton">上一頁</button>
                 <span id="slideInfo">1 / 1 - 第 1 首歌</span>
-                <button class="btn btn-outline" onclick="nextSlide()" id="nextButton">下一頁</button>
+            </div>
+            <div class="control-buttons">
+                <button class="btn btn-outline" onclick="refreshPreview()" id="refreshButton"><i class="material-icons">refresh</i></button>
+                <button class="btn btn-outline" onclick="prevSong()" id="prevSongButton"><i class="material-icons">skip_previous</i></button>
+                <button class="btn btn-outline" onclick="prevSlide()" id="prevButton"><i class="material-icons">chevron_left</i></button>
+                <button class="btn btn-outline" onclick="nextSlide()" id="nextButton"><i class="material-icons">chevron_right</i></button>
+                <button class="btn btn-outline" onclick="nextSong()" id="nextSongButton"><i class="material-icons">skip_next</i></button>
+                <button class="btn btn-primary" onclick="exportSlides()" id="exportButton"><i class="material-icons">file_download</i></button>
             </div>
         </div>
     </div>
@@ -728,28 +833,52 @@
     <!-- 圖片操作選單 (隱藏) -->
     <div id="imageMenu" class="image-menu"></div>
 
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="author-info">
-                <p class="author-name">Author: Allen Liu</p>
-                <p class="author-email">Email: <a href="mailto:allens920181@gmail.com">allens920181@gmail.com</a></p>
-                <p class="author-description"></p>
-            </div>
-        </div>
-    </footer>
-
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    <script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+    </script>
     <script>
         const messages = {
             zh: {
-                title: "歌詞投影片",
-                preview: "投影片預覽",
+                title: "LySlide",
+                preview: "LySlide",
                 inputSongName: "輸入歌名...",
                 delete: "✕",
                 inputLyrics: "使用 #主歌 歌詞... #副歌 歌詞... 的格式輸入歌詞，空行自動分頁",
                 uploadImage: "背景圖片",
                 addNewSong: "新增下一首歌",
                 export: "導出投影片",
+                refresh: "重新預覽",
                 lyricsSize: "歌詞大小:",
                 lyricsLineHeight: "歌詞行距:",
                 lyricsPosition: "歌詞位置:",
@@ -762,9 +891,10 @@
                 positionBottom: "下方 (B)",
                 prevSlide: "上一頁",
                 nextSlide: "下一頁",
+                prevSong: "上一首",
+                nextSong: "下一首",
                 song: "第",
                 songUnit: "首歌",
-                authorDesc: "我是一位宣教士，歡迎進一步與我聯繫與奉獻給我",
                 tagVerse: "主歌",
                 tagChorus: "副歌",
                 tagBridge: "橋段",
@@ -780,14 +910,15 @@
                 deleteImage: "刪除"
             },
             en: {
-                title: "Lyrics Slides",
-                preview: "Slide Preview",
+                title: "LySlide",
+                preview: "LySlide",
                 inputSongName: "Song name...",
                 delete: "✕",
                 inputLyrics: "Use #Verse lyrics... #Chorus lyrics... format, empty line for new page",
                 uploadImage: "Background",
                 addNewSong: "Add Song",
                 export: "Export Slides",
+                refresh: "Refresh Preview",
                 lyricsSize: "Lyrics Size:",
                 lyricsLineHeight: "Line Height:",
                 lyricsPosition: "Position:",
@@ -800,9 +931,10 @@
                 positionBottom: "Bottom (B)",
                 prevSlide: "Previous",
                 nextSlide: "Next",
+                prevSong: "Previous Song",
+                nextSong: "Next Song",
                 song: "Song",
                 songUnit: "",
-                authorDesc: "I am a missionary. Contact me to contribute to my ministry",
                 tagVerse: "Verse",
                 tagChorus: "Chorus",
                 tagBridge: "Bridge",
@@ -829,13 +961,12 @@
         let activeMoveMenuIndices = null;
         let activeImageMenu = null;
         let activeImageMenuIndex = null;
+        let selectedTagIndex = 0;
 
         function switchLanguage(lang) {
             currentLang = lang;
             document.title = messages[lang].title;
             document.querySelector('.header h1').textContent = messages[lang].title;
-            document.querySelector('.preview-header h2').textContent = messages[lang].preview;
-            document.querySelector('.preview-header .btn-primary').textContent = messages[lang].export;
             
             const labels = document.querySelectorAll('.control-group label');
             labels[0].textContent = messages[lang].lyricsSize;
@@ -851,16 +982,15 @@
             positionSelect.options[1].text = messages[lang].positionMiddle;
             positionSelect.options[2].text = messages[lang].positionBottom;
             
-            document.getElementById('prevButton').textContent = messages[lang].prevSlide;
-            document.getElementById('nextButton').textContent = messages[lang].nextSlide;
-            
-            document.querySelector('.author-description').textContent = messages[lang].authorDesc;
-            
             updateSongsContainer();
             updatePreview();
         }
 
         function parseLyrics(lyrics) {
+            if (!lyrics || lyrics.trim() === '') {
+                return [{ type: 'Empty', content: '' }]; // 預設返回一個空的幻燈片
+            }
+
             const sections = [];
             let currentType = '';
             let currentContent = '';
@@ -879,7 +1009,7 @@
                         }
                     }
                     
-                    currentType = line.substring(1).trim();
+                    currentType = line.substring(1).trim() || 'Untitled';
                     currentContent = '';
                     i++;
                 } else if (currentType) {
@@ -897,7 +1027,7 @@
                 }
             }
             
-            return sections;
+            return sections.length > 0 ? sections : [{ type: 'Empty', content: '' }];
         }
 
         function parseParagraphs(lyrics) {
@@ -1147,6 +1277,10 @@
 
         function updateSongsContainer() {
             const container = document.getElementById('songs-container');
+            if (!container) {
+                console.error('Songs container not found');
+                return;
+            }
             container.innerHTML = '';
 
             songs.forEach((song, index) => {
@@ -1171,7 +1305,7 @@
                                             <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
                                             <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
                                         </svg>
-                                        <svg class="action-icon paragraph-action-icon" onclick="deleteParagraph(${index}, ${paraIndex})" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <svg class="action-icon paragraph-action-icon" onclick="deleteParagraph(${index}, ${paraIndex})" viewBox="0 0 24 14" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M6 18L18 6M6 6l12 12"/>
                                         </svg>
                                     </div>
@@ -1186,7 +1320,7 @@
                             placeholder="${messages[currentLang].inputLyrics}"
                             onchange="handleLyricsChange(${index}, this.value)"
                             oninput="handleTextareaInput(event, this, ${index})"
-                            onkeydown="handleTextareaKeydown(event, this)"
+                            onkeydown="handleTextareaKeydown(event, this, ${index})"
                             onclick="setActiveTextarea(this, ${index})"
                         >${song.lyrics}</textarea>
                     `;
@@ -1197,16 +1331,11 @@
                         <img src="${song.background}" class="thumbnail" alt="Background thumbnail" onclick="showImageMenu(event, ${index})">
                     `
                     : `
-                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                            <polyline points="17 8 12 3 7 8"/>
-                            <line x1="12" y1="3" x2="12" y2="15"/>
-                        </svg>
-                        <span class="upload-text">${messages[currentLang].uploadImage}</span>
+                        <i class="material-icons upload-icon">add_photo_alternate</i>
                     `;
 
                 songCard.innerHTML = `
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px; position: relative;">
+                    <div class="song-input-container">
                         <input
                             type="text"
                             class="song-input"
@@ -1214,27 +1343,32 @@
                             placeholder="${messages[currentLang].inputSongName}"
                             onchange="handleSongTitleChange(${index}, this.value)"
                         >
-                        <svg class="action-icon song-delete-icon" onclick="removeSong(${index})" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </div>
-                    <div class="button-group">
                         <label class="toggle-switch">
                             <input type="checkbox" ${song.isParagraphMode ? 'checked' : ''} onchange="this.checked ? convertToParagraphs(${index}) : convertToText(${index})">
                             <span class="slider ${song.isParagraphMode ? 'active' : ''}">
-                                <span class="toggle-label text">${messages[currentLang].convertToText}</span>
-                                <span class="toggle-label paragraph">${messages[currentLang].convertToParagraphs}</span>
+                                <span class="toggle-label text">
+                                    <i class="material-icons">text_fields</i>
+                                </span>
+                                <span class="toggle-label paragraph">
+                                    <i class="material-icons">short_text</i>
+                                </span>
                             </span>
                         </label>
                         <label class="upload-button">
                             ${uploadButtonContent}
                             <input type="file" accept="image/*" onchange="handleImageUpload(${index}, this)">
                         </label>
+                        <svg class="action-icon song-delete-icon" onclick="removeSong(${index})" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
                     </div>
                     ${lyricsContent}
                 `;
                 container.appendChild(songCard);
             });
+
+            // 更新預覽以確保 slideInfo 同步
+            updatePreview();
         }
 
         function setActiveTextarea(textarea, index) {
@@ -1242,9 +1376,29 @@
             lastCursorPosition = textarea.selectionStart;
         }
 
-        function handleTextareaKeydown(event, textarea) {
-            if (event.key === 'Tab' && document.getElementById('tagMenu').style.display === 'block') {
+        function handleTextareaKeydown(event, textarea, songIndex) {
+            const tagMenu = document.getElementById('tagMenu');
+            if (event.key === 'Tab' && tagMenu.style.display === 'block') {
                 event.preventDefault();
+            }
+            if (tagMenu.style.display === 'block') {
+                switch (event.key) {
+                    case 'ArrowUp':
+                        event.preventDefault();
+                        selectedTagIndex = Math.max(0, selectedTagIndex - 1);
+                        updateTagMenuSelection();
+                        break;
+                    case 'ArrowDown':
+                        event.preventDefault();
+                        selectedTagIndex = Math.min(document.querySelectorAll('.tag-menu-item').length - 1, selectedTagIndex + 1);
+                        updateTagMenuSelection();
+                        break;
+                    case 'Enter':
+                        event.preventDefault();
+                        const selectedTag = document.querySelectorAll('.tag-menu-item')[selectedTagIndex].textContent;
+                        insertTag(selectedTag, songIndex);
+                        break;
+                }
             }
         }
 
@@ -1265,6 +1419,7 @@
 
         function showTagMenu(textarea, songIndex) {
             const tagMenu = document.getElementById('tagMenu');
+            selectedTagIndex = 0;
             
             tagMenu.innerHTML = `
                 <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagVerse}', ${songIndex})">${messages[currentLang].tagVerse}</div>
@@ -1281,9 +1436,17 @@
             tagMenu.style.width = `${rect.width}px`;
             tagMenu.style.display = 'block';
             
+            updateTagMenuSelection();
             document.addEventListener('click', hideTagMenuOnClickOutside);
             
             activeTextarea = textarea;
+        }
+
+        function updateTagMenuSelection() {
+            const items = document.querySelectorAll('.tag-menu-item');
+            items.forEach((item, index) => {
+                item.classList.toggle('selected', index === selectedTagIndex);
+            });
         }
 
         function hideTagMenuOnClickOutside(event) {
@@ -1297,6 +1460,7 @@
             const tagMenu = document.getElementById('tagMenu');
             tagMenu.style.display = 'none';
             document.removeEventListener('click', hideTagMenuOnClickOutside);
+            selectedTagIndex = 0;
         }
 
         function insertTag(tagName, songIndex) {
@@ -1454,62 +1618,93 @@
             const showTextBg = document.getElementById('showTextBg').checked;
             const showInfo = document.getElementById('showInfo').checked;
 
-            const [width, height] = aspectRatio.split(':').map(Number);
-            preview.style.paddingTop = `${(height / width) * 100}%`;
+            // Get parent container width
+            const previewSection = document.querySelector('.preview-section');
+            const availableWidth = previewSection.clientWidth;
 
-            const baseWidth = 1280;
-            const previewWidth = preview.offsetWidth;
-            const scaleFactor = previewWidth / baseWidth;
+            // Calculate aspect ratio and height
+            const [widthRatio, heightRatio] = aspectRatio.split(':').map(Number);
+            const previewHeight = availableWidth * heightRatio / widthRatio;
+
+            // Set preview container dimensions and aspect ratio
+            preview.style.width = '100%';
+            preview.style.height = `${previewHeight}px`;
+            preview.style.aspectRatio = `${widthRatio} / ${heightRatio}`;
+
+            // Calculate font size relative to actual width (normalize to 1280px base)
+            const scaleFactor = availableWidth / 1280;
+            const baseFontSize = lyricsFontSize * 1.333; // 1pt ≈ 1.333px
+            const previewFontSize = baseFontSize * scaleFactor;
+
+            // Info box font size (minimum 14px, scaled)
+            const infoFontSize = Math.max(14, 18 * scaleFactor);
+
+            // 確保當前歌曲和幻燈片索引有效
+            currentSong = Math.max(0, Math.min(currentSong, songs.length - 1));
+            const song = songs[currentSong] || { title: '', lyrics: '', background: null, isParagraphMode: false, paragraphs: [] };
             
-            const pptFontSize = Math.round(lyricsFontSize * 1.75);
-            const scaledFontSize = pptFontSize * scaleFactor;
-
-            const song = songs[currentSong];
             let slides = [];
             if (song.isParagraphMode) {
                 slides = parseLyrics(song.paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n'));
             } else {
-                slides = parseLyrics(song?.lyrics || '');
+                slides = parseLyrics(song.lyrics || '');
             }
-            const currentSlideData = slides[currentSlide];
 
-            if (currentSlideData && song) {
-                previewContent.style.backgroundImage = song.background 
-                    ? `url(${song.background})`
-                    : 'linear-gradient(to right bottom, #4a5568, #2d3748)';
-                previewContent.style.backgroundSize = 'cover';
-                previewContent.style.backgroundPosition = 'center';
+            // 確保 currentSlide 在有效範圍內
+            currentSlide = Math.max(0, Math.min(currentSlide, slides.length - 1));
+            const currentSlideData = slides[currentSlide] || { type: 'Empty', content: '' };
 
-                previewContent.innerHTML = `
-                    <div style="position: absolute; inset: 0; background-color: black; opacity: ${maskOpacity};"></div>
-                    <div class="preview-text-container" style="justify-content: ${previewPosition};">
-                        <div class="preview-text" style="
-                            font-size: ${scaledFontSize}px;
-                            line-height: ${lyricsLineHeight};
-                            ${showTextBg ? 'background-color: rgba(0,0,0,0.5);' : ''}
-                        ">
-                            ${currentSlideData.content.split('\n').join('<br>')}
-                        </div>
-                    </div>
-                    ${showInfo ? `
-                    <div style="
-                        position: absolute;
-                        bottom: 8px;
-                        right: 8px;
-                        padding: 4px 6px;
-                        border-radius: 4px;
-                        font-size: ${Math.max(14, 18 * scaleFactor)}px;
+            // 更新預覽內容
+            previewContent.style.backgroundImage = song.background 
+                ? `url(${song.background})`
+                : 'linear-gradient(to right bottom, #4a5568, #2d3748)';
+            previewContent.style.backgroundSize = 'cover';
+            previewContent.style.backgroundPosition = 'center';
+
+            previewContent.innerHTML = `
+                <div style="position: absolute; inset: 0; background-color: black; opacity: ${maskOpacity};"></div>
+                <div class="preview-text-container" style="justify-content: ${previewPosition};">
+                    <div class="preview-text" style="
+                        font-size: ${previewFontSize}px;
+                        line-height: ${lyricsLineHeight};
                         ${showTextBg ? 'background-color: rgba(0,0,0,0.5);' : ''}
                     ">
-                        <div>${currentSlideData.type}</div>
-                        <div>${song.title}</div>
+                        ${currentSlideData.content.split('\n').join('<br>')}
                     </div>
-                    ` : ''}
-                `;
+                </div>
+                ${showInfo ? `
+                <div style="
+                    position: absolute;
+                    bottom: 0.625%; /* 8px / 1280px */
+                    right: 0.625%; /* 8px / 1280px */
+                    padding: 0.3125% 0.46875%; /* 4px 6px / 1280px */
+                    border-radius: 0.3125%; /* 4px / 1280px */
+                    font-size: ${infoFontSize}px;
+                    ${showTextBg ? 'background-color: rgba(0,0,0,0.5);' : ''}
+                ">
+                    <div>${currentSlideData.type}</div>
+                    <div>${song.title}</div>
+                </div>
+                ` : ''}
+            `;
 
-                document.getElementById('slideInfo').textContent = 
-                    `${currentSlide + 1} / ${slides.length} - ${messages[currentLang].song} ${currentSong + 1} ${messages[currentLang].songUnit}`;
-            }
+            // 更新 slideInfo
+            document.getElementById('slideInfo').textContent = 
+                `${currentSlide + 1} / ${slides.length} - ${messages[currentLang].song} ${currentSong + 1} ${messages[currentLang].songUnit}`;
+        }
+
+        function refreshPreview() {
+            const preview = document.getElementById('preview');
+            const previewContent = document.getElementById('previewContent');
+            previewContent.style.transition = 'opacity 0.1s';
+            previewContent.style.opacity = '0';
+            setTimeout(() => {
+                previewContent.style.opacity = '1';
+                setTimeout(() => {
+                    previewContent.style.transition = '';
+                    updatePreview();
+                }, 100);
+            }, 50);
         }
 
         async function exportSlides() {
@@ -1532,8 +1727,6 @@
                 } else {
                     pptx.layout = 'LAYOUT_WIDE';
                 }
-
-                const pptFontSize = Math.round(lyricsFontSize * 1.75);
 
                 for (const song of songs) {
                     let slides = [];
@@ -1592,7 +1785,7 @@
                         const formattedLines = lines.map(line => ({
                             text: line,
                             options: {
-                                fontSize: pptFontSize,
+                                fontSize: lyricsFontSize, // Use input directly as points
                                 color: 'FFFFFF',
                                 bold: true,
                                 breakLine: true
@@ -1661,14 +1854,47 @@
             }
         }
 
-        function nextSlide() {
+        function prevSlide() {
             let slides = [];
-            const song = songs[currentSong];
+            const song = songs[currentSong] || { title: '', lyrics: '', isParagraphMode: false, paragraphs: [] };
             if (song.isParagraphMode) {
                 slides = parseLyrics(song.paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n'));
             } else {
-                slides = parseLyrics(song?.lyrics || '');
+                slides = parseLyrics(song.lyrics || '');
             }
+
+            if (slides.length === 0) {
+                slides = [{ type: 'Empty', content: '' }];
+            }
+
+            if (currentSlide > 0) {
+                currentSlide--;
+            } else if (currentSong > 0) {
+                currentSong--;
+                slides = [];
+                if (songs[currentSong].isParagraphMode) {
+                    slides = parseLyrics(songs[currentSong].paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n'));
+                } else {
+                    slides = parseLyrics(songs[currentSong].lyrics || '');
+                }
+                currentSlide = slides.length - 1;
+            }
+            updatePreview();
+        }
+
+        function nextSlide() {
+            let slides = [];
+            const song = songs[currentSong] || { title: '', lyrics: '', isParagraphMode: false, paragraphs: [] };
+            if (song.isParagraphMode) {
+                slides = parseLyrics(song.paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n'));
+            } else {
+                slides = parseLyrics(song.lyrics || '');
+            }
+
+            if (slides.length === 0) {
+                slides = [{ type: 'Empty', content: '' }];
+            }
+
             if (currentSlide < slides.length - 1) {
                 currentSlide++;
             } else if (currentSong < songs.length - 1) {
@@ -1678,35 +1904,26 @@
             updatePreview();
         }
 
-        function prevSlide() {
-            if (currentSlide > 0) {
-                currentSlide--;
-            } else if (currentSong > 0) {
+        function prevSong() {
+            if (currentSong > 0) {
                 currentSong--;
-                let slides = [];
-                const song = songs[currentSong];
-                if (song.isParagraphMode) {
-                    slides = parseLyrics(song.paragraphs.map(p => `#${p.type}\n${p.content}`).join('\n'));
-                } else {
-                    slides = parseLyrics(song.lyrics);
-                }
-                currentSlide = slides.length - 1;
+                currentSlide = 0;
+                updatePreview();
             }
-            updatePreview();
         }
 
-        window.addEventListener('resize', updatePreview);
-        
-        document.addEventListener('click', function(event) {
-            const tagMenu = document.getElementById('tagMenu');
-            if (tagMenu.style.display === 'block' && 
-                !tagMenu.contains(event.target) && 
-                !event.target.classList.contains('lyrics-textarea')) {
-                hideTagMenu();
+        function nextSong() {
+            if (currentSong < songs.length - 1) {
+                currentSong++;
+                currentSlide = 0;
+                updatePreview();
             }
-        });
-        
-        document.querySelector('.author-description').textContent = messages[currentLang].authorDesc;
+        }
+
+        // Add resize event listener for responsive preview scaling
+        window.addEventListener('resize', updatePreview);
+
+        // Initial render
         updateSongsContainer();
         updatePreview();
     </script>
