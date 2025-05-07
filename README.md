@@ -136,9 +136,76 @@ Resolved inconsistencies in slide navigation when switching songs with different
 Corrected z-index issues with menus (tag, move, image) to ensure they appear above other elements.
 Fixed export functionality to skip empty songs and handle edge cases with invalid slide data.
 
-Known Issues
 
-XLSX File Handling: The loadFileData function remains unused in both versions, indicating potential incomplete integration for XLSX file support.
-Accessibility: Keyboard navigation for move and image menus is not yet implemented.
-Performance: Large song lists with many paragraphs may cause slight delays in updateSongsContainer; further optimization needed.
+Version 1.5.0
+
+1. UI Layout and Responsiveness
+Single-Column Layout: V1.5 adopts a single-column flex layout (.container { display: flex; flex-direction: column; }) instead of V1.4’s grid-based two-column layout (editor and preview side-by-side). This improves mobile usability by stacking sections vertically, reducing horizontal scrolling issues on smaller screens.
+
+Dynamic Container Sizing: The container’s max-width: 50vw; min-width: 600px in V1.5 (vs. V1.4’s max-width: 1400px) ensures better adaptability to various screen sizes while maintaining a minimum width for usability. On mobile (max-width: 767px), max-width: 90vw; min-width: unset further optimizes for small screens.
+
+Font and Element Scaling: V1.5 refines font sizes and padding for mobile devices (e.g., .btn font size reduced to 12px, card padding to 12px in media query), improving readability and touch interaction.
+
+2. Preview Scaling
+Dynamic Preview Dimensions: V1.5 calculates the preview height based on the parent container’s width and aspect ratio (previewHeight = availableWidth * heightRatio / widthRatio), ensuring the preview scales proportionally without overflow. V1.4 used a static approach, less responsive to container size changes.
+
+Font Size Normalization: V1.5 normalizes font size to a 1280px base (scaleFactor = availableWidth / 1280), ensuring consistent text scaling across devices. V1.4 lacked this explicit scaling logic.
+
+Resize Event Listener: V1.5 adds window.addEventListener('resize', updatePreview) to re-render the preview on window resize, ensuring responsiveness. V1.4 did not explicitly handle resize events.
+
+3. Performance Improvements
+Efficient DOM Updates: V1.5 uses requestAnimationFrame in insertTag to schedule cursor positioning and preview updates, reducing layout thrashing. V1.4 performed these synchronously, potentially causing jank.
+
+Debounced Preview Updates: In handleLyricsChange, V1.5 conditionally updates the preview only when the tag menu is not active or the change isn’t from tag insertion, reducing unnecessary re-renders compared to V1.4’s immediate updates.
+
+Optimized Slide Info: V1.5 updates slideInfo dynamically in updatePreview using template literals, consolidating logic that was scattered in V1.4.
+
+4. Usability Enhancements
+Tag Menu Keyboard Navigation: V1.5 improves tag menu interaction by adding Tab prevention and Escape key support to close the menu, enhancing keyboard accessibility. V1.4 supported only ArrowUp, ArrowDown, and Enter.
+
+Toggle Switch Labels: The text/paragraph toggle in V1.5 uses Material Icons (text_fields, short_text) inside the slider, improving visual clarity over V1.4’s plain text labels.
+
+Song Deletion Icon: V1.5 positions the song delete icon statically (position: static) within the song-input-container, making it more predictable than V1.4’s absolute positioning.
+
+Paragraph Block Height: V1.5 sets a fixed height: 50px for .paragraph-block, ensuring consistent drag-and-drop visuals. V1.4 relied on content-driven heights, which could vary.
+
+5. Code Structure
+Consolidated Language Messages: V1.5 centralizes all translatable strings in the messages object, including new entries like convertToParagraphs and convertToText. V1.4 had a less comprehensive set, requiring more inline updates.
+
+Modular Menu Handling: V1.5 refactors menu logic (e.g., showMoveMenu, showImageMenu) to use consistent patterns with hide*OnClickOutside functions, improving maintainability over V1.4’s ad-hoc implementations.
+
+Error Handling in Export: V1.5 wraps exportSlides in a try-catch block with a user-friendly alert for errors, improving robustness compared to V1.4’s basic error handling.
+
+Fixes
+
+1. Drag-and-Drop Stability
+Drop Index Accuracy: V1.5 improves drop index calculation in dropParagraph by checking event.clientY < rect.top + rect.height / 2, ensuring precise paragraph reordering. V1.4’s logic was less refined, occasionally misplacing paragraphs.
+
+Drag State Cleanup: V1.5 removes the dragging class in dropParagraph after a drop, preventing visual artifacts. V1.4 could leave elements in a dragging state.
+
+Move Menu Sync: V1.5 updates the move menu position (updateMoveMenuPosition) after drag-and-drop or manual moves, fixing V1.4’s issue where the menu could become misaligned.
+
+2. Lyrics Parsing
+Empty Lyrics Handling: V1.5’s parseLyrics returns a default empty slide ([{ type: 'Empty', content: '' }]) for blank or undefined lyrics, preventing crashes. V1.4 was less robust, potentially causing undefined behavior.
+
+Section Splitting: V1.5 refines parseLyrics to split content by double newlines (\n\n) and filter empty parts, ensuring accurate slide creation. V1.4’s parsing could include empty slides unnecessarily.
+
+3. Preview Robustness
+Index Validation: V1.5 ensures currentSong and currentSlide are within valid ranges in updatePreview (Math.max(0, Math.min(...))), fixing potential out-of-bounds errors in V1.4.
+
+Fallback Background: V1.5 sets a gradient background (linear-gradient(to right bottom, #4a5568, #2d3748)) when no image is provided, improving visual consistency over V1.4’s plain black fallback.
+
+Info Box Scaling: V1.5 enforces a minimum infoFontSize of 14px in the preview, fixing V1.4’s issue where small screens could render unreadable text.
+
+4. Export Reliability
+Timestamped Filenames: V1.5 generates PPTX filenames with a timestamp (歌詞投影片_${timestamp}.pptx), preventing overwrites and improving user organization. V1.4 used a generic filename.
+
+Blob-based Export: V1.5 uses pptx.write('blob') with URL.createObjectURL for reliable downloads, fixing V1.4’s less robust export method that could fail in some browsers.
+
+Empty Song Check: V1.5 checks for valid songs before export (songs.some(song => song.lyrics.trim() || song.paragraphs.length)), preventing empty PPTX files. V1.4 lacked this validation.
+
+5. UI Consistency
+Button Styling: V1.5 standardizes .btn-outline buttons with a circular shape (border-radius: 50%) and consistent sizing (36px or 32px on mobile), fixing V1.4’s varied button appearances.
+
+Menu Positioning: V1.5 ensures menus (tag, move, image) are positioned relative to their triggers using getBoundingClientRect, fixing V1.4’s occasional misalignment on scroll or resize.
 
