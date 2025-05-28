@@ -1402,18 +1402,17 @@
             }
         }
 
-        function handleTextareaInput(event, textarea, songIndex) {
+             function handleTextareaInput(event, textarea, songIndex) {
             const curPos = textarea.selectionStart;
             const text = textarea.value;
-            
+        
             lastCursorPosition = curPos;
-            
-            if (event.data === '#') {
+        
+            // 只有在輸入兩個 `#` 時才顯示 `tagMenu`
+            if (textarea.value.substr(curPos - 2, 2) === '##') {
                 showTagMenu(textarea, songIndex);
             } else {
-                if (event.key === 'Escape') {
-                    hideTagMenu();
-                }
+                hideTagMenu();
             }
         }
 
@@ -1463,7 +1462,7 @@
             selectedTagIndex = 0;
         }
 
-        function insertTag(tagName, songIndex) {
+                function insertTag(tagName, songIndex) {
             if (!activeTextarea) return;
             
             const curPos = lastCursorPosition;
@@ -1471,7 +1470,8 @@
             
             const scrollTop = activeTextarea.scrollTop;
             
-            const newText = text.substring(0, curPos - 1) + '#' + tagName + ' ' + text.substring(curPos);
+            // 替換兩個 `##` 為一個 `#` 並插入標籤
+            const newText = text.substring(0, curPos - 2) + '#' + tagName + ' ' + text.substring(curPos);
             
             activeTextarea.value = newText;
             
@@ -1479,7 +1479,7 @@
             
             hideTagMenu();
             
-            const newCursorPos = curPos - 1 + ('#' + tagName + ' ').length;
+            const newCursorPos = curPos - 2 + ('#' + tagName + ' ').length;
             
             requestAnimationFrame(() => {
                 activeTextarea.scrollTop = scrollTop;
