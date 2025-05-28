@@ -209,3 +209,6 @@ Button Styling: V1.5 standardizes .btn-outline buttons with a circular shape (bo
 
 Menu Positioning: V1.5 ensures menus (tag, move, image) are positioned relative to their triggers using getBoundingClientRect, fixing V1.4’s occasional misalignment on scroll or resize.
 
+Ver1.5.1
+- 在輸入兩個 `#` 時才會顯示 `tagMenu`，而單個 `#` 不會觸發菜單顯示。
+- 選擇完標籤後，輸入的兩個 ## 會被替換為一個 #，並插入所選的標籤到文字框中。
