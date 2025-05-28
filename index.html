@@ -48,6 +48,41 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8221154886029506"
      crossorigin="anonymous"></script>
 <style>
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 16px;
+        }
+    
+        .navbar h1 {
+            font-size: 24px;
+            color: #4CAF50;
+            margin: 0;
+        }
+    
+        .navbar h2 {
+            font-size: 14px;
+            color: #4a5568;
+            margin: 0;
+        }
+    
+        .navbar .lang-switch {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+    
+        .container {
+            margin-top: 64px; /* 确保内容不被导航栏遮挡 */
+        }
         * {
             box-sizing: border-box;
             margin: 0;
@@ -740,24 +775,23 @@
 </style>
 </head>
 <body>
+    <div class="navbar">
+        <div>
+            <h1>LySlide</h1>
+            <h2>From Lyrics to Slides, Effortlessly.</h2>
+        </div>
+        <div class="lang-switch">
+            <label class="lang-toggle-switch">
+                <input type="checkbox" onchange="switchLanguage(this.checked ? 'en' : 'zh')">
+                <span class="lang-slider">
+                    <span class="lang-label ch">CH</span>
+                    <span class="lang-label en">EN</span>
+                </span>
+            </label>
+        </div>
+    </div>
     <div class="container">
         <div class="editor-section">
-            <div class="header">
-                <div>
-                    <h1>LySlide</h1>
-                    <h2 style="font-size: 14px; color: #4a5568; margin-top: 4px;">From Lyrics to Slides, Effortlessly.</h2>
-                </div>
-                <div class="lang-switch">
-                    <label class="lang-toggle-switch">
-                        <input type="checkbox" onchange="switchLanguage(this.checked ? 'en' : 'zh')">
-                        <span class="lang-slider">
-                            <span class="lang-label ch">CH</span>
-                            <span class="lang-label en">EN</span>
-                        </span>
-                    </label>
-                </div>
-            </div>
-
             <div id="songs-container"></div>
             <button class="btn btn-primary" onclick="addNewSong()" style="width: 100%; margin-top: 8px; font-size: 16px;">+</button>
         </div>
@@ -866,6 +900,22 @@
         }
         return gk_fileData[filename] || "";
         }
+    </script>
+        <script>
+        function adjustContainerMargin() {
+            const navbar = document.querySelector('.navbar');
+            const container = document.querySelector('.container');
+            if (navbar && container) {
+                const navbarHeight = navbar.offsetHeight;
+                container.style.marginTop = `${navbarHeight}px`;
+            }
+        }
+    
+        // 初始調整
+        adjustContainerMargin();
+    
+        // 監聽視窗大小改變事件
+        window.addEventListener('resize', adjustContainerMargin);
     </script>
     <script>
         const messages = {
@@ -1416,30 +1466,49 @@
             }
         }
 
-        function showTagMenu(textarea, songIndex) {
-            const tagMenu = document.getElementById('tagMenu');
-            selectedTagIndex = 0;
-            
-            tagMenu.innerHTML = `
-                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagVerse}', ${songIndex})">${messages[currentLang].tagVerse}</div>
-                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagChorus}', ${songIndex})">${messages[currentLang].tagChorus}</div>
-                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagBridge}', ${songIndex})">${messages[currentLang].tagBridge}</div>
-                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagInterlude}', ${songIndex})">${messages[currentLang].tagInterlude}</div>
-                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagOutro}', ${songIndex})">${messages[currentLang].tagOutro}</div>
-            `;
-            
-            const rect = textarea.getBoundingClientRect();
-            
-            tagMenu.style.top = `${rect.bottom + 5}px`;
-            tagMenu.style.left = `${rect.left}px`;
-            tagMenu.style.width = `${rect.width}px`;
-            tagMenu.style.display = 'block';
-            
-            updateTagMenuSelection();
-            document.addEventListener('click', hideTagMenuOnClickOutside);
-            
-            activeTextarea = textarea;
-        }
+                       function showTagMenu(textarea, songIndex) {
+                    const tagMenu = document.getElementById('tagMenu');
+                    selectedTagIndex = 0;
+                
+                    tagMenu.innerHTML = `
+                        <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagVerse}', ${songIndex})">${messages[currentLang].tagVerse}</div>
+                        <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagChorus}', ${songIndex})">${messages[currentLang].tagChorus}</div>
+                        <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagBridge}', ${songIndex})">${messages[currentLang].tagBridge}</div>
+                        <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagInterlude}', ${songIndex})">${messages[currentLang].tagInterlude}</div>
+                        <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagOutro}', ${songIndex})">${messages[currentLang].tagOutro}</div>
+                    `;
+                
+                    const rect = textarea.getBoundingClientRect();
+                    const scrollTop = textarea.scrollTop;
+                    const scrollLeft = textarea.scrollLeft;
+                
+                    // 計算光標位置
+                    const textBeforeCursor = textarea.value.substring(0, textarea.selectionStart);
+                    const lines = textBeforeCursor.split('\n');
+                    const lineHeight = parseFloat(window.getComputedStyle(textarea).lineHeight) || 20; // 預設行高為 20px
+                    const fontSize = parseFloat(window.getComputedStyle(textarea).fontSize) || 16; // 預設字體大小為 16px
+                
+                    const cursorX = rect.left + window.scrollX + scrollLeft + (lines[lines.length - 1].length * fontSize * 0.6); // 粗略估算每字寬度
+                    const cursorY = rect.top + window.scrollY + scrollTop + (lines.length - 1) * lineHeight;
+                
+                    // 確保選單不超出視窗範圍
+                    const viewportHeight = window.innerHeight;
+                    const menuHeight = tagMenu.offsetHeight;
+                
+                    let topPosition = cursorY + lineHeight + 5; // 光標下方
+                    if (topPosition + menuHeight > viewportHeight + window.scrollY) {
+                        topPosition = cursorY - menuHeight - 5; // 如果超出範圍，顯示在光標上方
+                    }
+                
+                    tagMenu.style.top = `${topPosition}px`;
+                    tagMenu.style.left = `${cursorX}px`;
+                    tagMenu.style.display = 'block';
+                
+                    updateTagMenuSelection();
+                    document.addEventListener('click', hideTagMenuOnClickOutside);
+                
+                    activeTextarea = textarea;
+                }
 
         function updateTagMenuSelection() {
             const items = document.querySelectorAll('.tag-menu-item');
