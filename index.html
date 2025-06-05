@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
@@ -48,41 +9,14 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8221154886029506"
      crossorigin="anonymous"></script>
 <style>
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: #ffffff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 16px;
+        :root {
+            --color-primary: #4CAF50;
+            --color-primary-hover: #388e3c;
+            --color-border: rgba(226, 232, 240, 0.8);
+            --color-text: #666;
+            --color-secondary-bg: rgba(230, 240, 234, 0.8);
         }
-    
-        .navbar h1 {
-            font-size: 24px;
-            color: #4CAF50;
-            margin: 0;
-        }
-    
-        .navbar h2 {
-            font-size: 14px;
-            color: #4a5568;
-            margin: 0;
-        }
-    
-        .navbar .lang-switch {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-    
-        .container {
-            margin-top: 64px; /* 确保内容不被导航栏遮挡 */
-        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -95,17 +29,64 @@
             padding: 16px;
             max-width: 100%;
             margin: 0 auto;
-            background-color: #f9fafb;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 70%, rgba(230, 240, 234, 0.8) 100%);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
             overflow-x: hidden;
+        }
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    
+        .navbar h1 {
+            font-size: 28px;
+            color: #388e3c;
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px #e6f0ea;
+        }
+    
+        .navbar h2 {
+            font-size: 15px;
+            color: #4a5568;
+            margin: 0;
+            font-weight: 400;
+            opacity: 0.85;
+        }
+    
+        .navbar .lang-switch {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+    
+        .container {
+            margin-top: 80px;
         }
 
         .container {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
             max-width: 50vw;
             min-width: 600px;
             margin: 0 auto;
+            padding-top: 24px; 
         }
 
         .editor-section, .preview-section {
@@ -128,70 +109,77 @@
         }
 
         .btn {
-            padding: 8px 16px;
-            border: 1px solid #e2e8f0;
+            padding: 10px 20px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
+            font-size: 15px;
+            transition: all 0.3s cubic-bezier(.4,0,.2,1);
             white-space: nowrap;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: transparent;
+            background-color: rgba(249, 250, 251, 0.8);
             width: auto;
             max-width: 100%;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(76,175,80,0.03);
         }
 
         .btn:hover {
-            background-color: #f1f5f9;
-            border-color: #4CAF50;
+            background-color: rgba(230, 240, 234, 0.8);
         }
 
         .btn:active {
             transform: scale(0.98);
-            background-color: #e6f0ea;
+            background-color: rgba(230, 240, 234, 0.8);
         }
 
         .btn-primary {
-            background-color: #4CAF50;
-            color: white;
-            border-color: #4CAF50;
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(76,175,80,0.08);
+            transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
         }
 
         .btn-primary:hover {
-            background-color: #48bb78;
-            border-color: #48bb78;
+            background-color: var(--color-primary-hover);
+            box-shadow: 0 4px 16px rgba(76,175,80,0.15);
+            transform: scale(1.03);
         }
 
         .btn-primary:active {
-            background-color: #38a169;
+            background: #388e3c;
         }
 
         .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            border-radius: 8px;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 1px solid #e2e8f0;
-            background-color: white;
-            transition: all 0.3s ease;
+            width: 38px;
+            height: 38px;
         }
 
         .btn-outline:hover {
-            background-color: #f1f5f9;
-            border-color: #4CAF50;
+            background-color: var(--color-secondary-bg);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
         }
 
         .btn-outline:active {
             transform: scale(0.95);
-            background-color: #e6f0ea;
+            background-color: rgba(230, 240, 234, 0.8);
         }
 
         .btn-outline i {
-            font-size: 18px;
+            font-size: 20px;
             color: #666;
         }
 
@@ -200,53 +188,67 @@
         }
 
         .card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-bottom: 16px;
-            position: relative;
-            width: 100%;
+            margin-bottom: 24px;
+            padding: 24px;
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05), 0 1px 4px rgba(0,0,0,0.06);
+            background-color: rgba(255,255,255,0.65);
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .card:hover {
+            box-shadow: 0 10px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+            transform: translateY(-2px);
         }
 
         .song-input {
             flex: 2;
-            padding: 8px;
-            border: 1px solid #e2e8f0;
+            padding: 10px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 15px;
             transition: border-color 0.3s ease;
             width: 100%;
+            font-weight: 500;
+            background: #f9fafb;
         }
 
         .song-input:focus {
             outline: none;
             border-color: #4CAF50;
+            background: #e6f0ea;
         }
 
         .lyrics-textarea {
             width: 100%;
             height: 150px;
-            padding: 8px;
+            padding: 10px;
             margin-bottom: 8px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(226, 232, 240, 0.8);
             border-radius: 8px;
             resize: vertical;
-            font-size: 14px;
+            font-size: 15px;
             transition: border-color 0.3s ease;
+            background: #f9fafb;
         }
 
         .lyrics-textarea:focus {
             outline: none;
             border-color: #4CAF50;
+            background: #e6f0ea;
         }
 
         .preview-container {
             position: relative;
             width: 100%;
             background-color: #000;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
+            border: 2px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 8px 32px rgba(76,175,80,0.10), 0 2px 8px rgba(0,0,0,0.04);
+            margin-bottom: 8px;
+            background: rgba(30,30,30,0.35);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
         }
 
         .preview-content {
@@ -258,7 +260,8 @@
             display: flex;
             flex-direction: column;
             color: white;
-            padding: 1.5625%; /* 20px / 1280px */
+            padding: 1.5625%;
+            transition: opacity 0.2s cubic-bezier(.4,0,.2,1);
         }
 
         .preview-text-container {
@@ -272,7 +275,9 @@
 
         .preview-text {
             margin: 0 5%;
-            padding: 1.25%; /* 16px / 1280px */
+            padding: 1.25%;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
         }
 
         .preview-controls {
@@ -287,45 +292,46 @@
         .control-group {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
+            gap: 10px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
         }
 
         .control-group label {
-            font-size: 12px;
+            font-size: 13px;
             white-space: nowrap;
-            color: #4a5568;
+            color: #388e3c;
+            font-weight: 500;
         }
 
         .control-group input[type="number"],
         .control-group select {
-            padding: 4px;
-            border: 1px solid #e2e8f0;
+            padding: 5px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 13px;
             width: auto;
-            max-width: 100px;
+            max-width: 110px;
+            background: #f9fafb;
         }
 
         .upload-button {
             position: relative;
             overflow: hidden;
             background-color: #f1f5f9;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(226, 232, 240, 0.8);
             border-radius: 50%;
-            height: 32px;
-            width: 32px;
+            height: 36px;
+            width: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(.4,0,.2,1);
             margin-left: 8px;
         }
 
         .upload-button:hover {
-            background-color: #e2e8f0;
-            border-color: #4CAF50;
+            background-color: rgba(230, 240, 234, 0.8);
         }
 
         .upload-button input[type="file"] {
@@ -339,7 +345,7 @@
         }
 
         .upload-icon {
-            font-size: 16px;
+            font-size: 18px;
             color: #666;
             transition: color 0.3s ease;
         }
@@ -349,19 +355,21 @@
         }
 
         .thumbnail {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             object-fit: cover;
             border-radius: 50%;
             cursor: pointer;
+            border: 1.5px solid #4CAF50;
+            box-shadow: 0 2px 8px rgba(76,175,80,0.10);
         }
 
         .action-icon {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             cursor: pointer;
             color: #666;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(.4,0,.2,1);
             padding: 4px;
             border-radius: 50%;
             background-color: #f1f5f9;
@@ -369,7 +377,7 @@
 
         .action-icon:hover {
             color: #4CAF50;
-            background-color: #e6f0ea;
+            background-color: rgba(230, 240, 234, 0.8);
         }
 
         .song-delete-icon {
@@ -383,8 +391,8 @@
 
         .image-menu {
             position: absolute;
-            background-color: white;
-            border: 1px solid #e2e8f0;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(226, 232, 240, 0.8);
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             z-index: 10;
@@ -394,14 +402,14 @@
         }
 
         .image-menu-item {
-            padding: 6px 12px;
+            padding: 8px 16px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 12px;
+            gap: 8px;
+            font-size: 13px;
             border-radius: 6px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(.4,0,.2,1);
         }
 
         .image-menu-item:hover {
@@ -410,15 +418,15 @@
         }
 
         .image-menu-item svg {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
         }
 
         /* 標籤選單 */
         .tag-menu {
             position: absolute;
-            background-color: white;
-            border: 1px solid #e2e8f0;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(226, 232, 240, 0.8);
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             z-index: 10;
@@ -429,12 +437,12 @@
         }
 
         .tag-menu-item {
-            padding: 8px 16px;
+            padding: 10px 20px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s cubic-bezier(.4,0,.2,1);
             text-align: center;
             display: inline-block;
-            font-size: 12px;
+            font-size: 13px;
             border-radius: 6px;
         }
 
@@ -450,22 +458,23 @@
 
         /* 段落區塊樣式 */
         .paragraph-block {
-            background-color: #f1f5f9;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            background: rgba(241, 245, 249, 0.7);
+            backdrop-filter: blur(8px) saturate(140%);
+            -webkit-backdrop-filter: blur(8px) saturate(140%);
+            border: 1px solid rgba(226, 232, 240, 0.8);
             padding: 8px;
             margin-bottom: 8px;
             cursor: move;
             position: relative;
             display: flex;
             align-items: center;
-            height: 50px;
+            height: 54px;
             overflow: hidden;
-            transition: box-shadow 0.3s ease;
+            transition: box-shadow 0.3s cubic-bezier(.4,0,.2,1);
         }
 
         .paragraph-block:hover {
-            box-shadow: 0 0 12px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 0 12px rgba(76, 175, 80, 0.13);
         }
 
         .paragraph-block.dragging {
@@ -482,27 +491,28 @@
         .paragraph-header {
             font-weight: bold;
             margin-bottom: 4px;
-            font-size: 12px;
-            color: #2d3748;
+            font-size: 13px;
+            color: #388e3c;
+            letter-spacing: 0.5px;
         }
 
         .paragraph-preview {
             color: #4a5568;
-            font-size: 10px;
+            font-size: 11px;
         }
 
         .paragraph-actions {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             align-items: center;
         }
 
         .drag-handle {
-            margin-right: 8px;
+            margin-right: 10px;
             cursor: pointer;
             color: #666;
             flex-shrink: 0;
-            transition: transform 0.3s ease, color 0.3s ease;
+            transition: transform 0.3s cubic-bezier(.4,0,.2,1), color 0.3s cubic-bezier(.4,0,.2,1);
             padding: 4px;
             border-radius: 50%;
             background-color: #f1f5f9;
@@ -511,13 +521,13 @@
         .drag-handle:hover {
             transform: scale(1.1);
             color: #4CAF50;
-            background-color: #e6f0ea;
+            background-color: rgba(230, 240, 234, 0.8);
         }
 
         .move-menu {
             position: absolute;
-            background-color: white;
-            border: 1px solid #e2e8f0;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(226, 232, 240, 0.8);
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             z-index: 10;
@@ -527,14 +537,14 @@
         }
 
         .move-menu-item {
-            padding: 6px 12px;
+            padding: 8px 16px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 12px;
+            gap: 8px;
+            font-size: 13px;
             border-radius: 6px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(.4,0,.2,1);
         }
 
         .move-menu-item:hover {
@@ -543,16 +553,16 @@
         }
 
         .move-menu-item svg {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
         }
 
         /* 滑動開關樣式（文字/段落） */
         .toggle-switch {
             position: relative;
             display: inline-block;
-            width: 50px;
-            height: 28px;
+            width: 54px;
+            height: 30px;
             margin-left: 8px;
         }
 
@@ -570,8 +580,8 @@
             right: 0;
             bottom: 0;
             background-color: #e2e8f0;
-            border-radius: 14px;
-            transition: 0.3s ease;
+            border-radius: 15px;
+            transition: 0.3s cubic-bezier(.4,0,.2,1);
         }
 
         .slider.active {
@@ -581,13 +591,13 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 20px;
+            height: 22px;
             width: 50%;
             left: 4px;
             bottom: 4px;
             background-color: white;
-            border-radius: 10px;
-            transition: 0.3s ease;
+            border-radius: 11px;
+            transition: 0.3s cubic-bezier(.4,0,.2,1);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -603,7 +613,7 @@
             transform: translateY(-50%);
             width: 50%;
             text-align: center;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.3s cubic-bezier(.4,0,.2,1);
         }
 
         .toggle-label.text {
@@ -628,8 +638,8 @@
         .lang-toggle-switch {
             position: relative;
             display: inline-block;
-            width: 50px;
-            height: 28px;
+            width: 54px;
+            height: 30px;
         }
 
         .lang-toggle-switch input {
@@ -646,8 +656,8 @@
             right: 0;
             bottom: 0;
             background-color: #e2e8f0;
-            border-radius: 14px;
-            transition: 0.3s ease;
+            border-radius: 15px;
+            transition: 0.3s cubic-bezier(.4,0,.2,1);
         }
 
         .lang-slider.active {
@@ -657,13 +667,13 @@
         .lang-slider:before {
             position: absolute;
             content: "";
-            height: 20px;
+            height: 22px;
             width: 50%;
             left: 4px;
             bottom: 4px;
             background-color: white;
-            border-radius: 10px;
-            transition: 0.3s ease;
+            border-radius: 11px;
+            transition: 0.3s cubic-bezier(.4,0,.2,1);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -679,9 +689,10 @@
             transform: translateY(-50%);
             width: 50%;
             text-align: center;
-            font-size: 10px;
-            transition: opacity 0.3s ease;
+            font-size: 11px;
+            transition: opacity 0.3s cubic-bezier(.4,0,.2,1);
             color: #4CAF50;
+            font-weight: 600;
         }
 
         .lang-label.ch {
@@ -714,22 +725,22 @@
         .song-input-container {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
+            gap: 10px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
         }
 
         /* 調整 Material Icons 的樣式 */
         .toggle-label i {
-            font-size: 14px;
+            font-size: 16px;
             color: #4CAF50;
         }
 
         /* 控制按鈕容器 */
         .control-buttons {
-            margin-top: 8px;
+            margin-top: 10px;
             display: flex;
-            gap: 8px;
+            gap: 10px;
             justify-content: center;
             align-items: center;
             flex-wrap: wrap;
@@ -740,12 +751,12 @@
                 padding: 8px;
             }
             .container {
-                max-width: 90vw;
+                max-width: 98vw;
                 min-width: unset;
             }
             .btn {
-                font-size: 12px;
-                padding: 6px 12px;
+                font-size: 13px;
+                padding: 7px 12px;
             }
             .btn-outline {
                 width: 32px;
@@ -758,14 +769,14 @@
                 padding: 12px;
             }
             .song-input, .lyrics-textarea {
-                font-size: 12px;
+                font-size: 13px;
             }
             .control-group label {
-                font-size: 10px;
+                font-size: 11px;
             }
             .control-group input[type="number"],
             .control-group select {
-                font-size: 10px;
+                font-size: 11px;
                 max-width: 80px;
             }
             .preview-controls {
@@ -798,44 +809,46 @@
 
         <div class="preview-section">
             <div class="card">
-                <div class="control-group">
-                    <label>歌詞大小:</label>
-                    <input type="number" min="12" max="72" value="54" id="lyricsFontSize" onchange="updatePreview()">
-                    <span>pt</span>
-                </div>
-                <div class="control-group">
-                    <label>歌詞行距:</label>
+                <div class="control-group-inline">
+                    <label title="歌詞大小">
+                        <i class="material-icons">format_size</i>
+                    </label>
+                    <input type="number" min="12" max="72" value="48" id="lyricsFontSize" onchange="updatePreview()">
+                
+                    <label title="歌詞行距">
+                        <i class="material-icons">format_line_spacing</i>
+                    </label>
                     <input type="number" min="1" max="2" value="1.2" id="lyricsLineHeight" step="0.1" onchange="updatePreview()">
-                </div>
-                <div class="control-group">
-                    <label>歌詞位置:</label>
+                
+                    <label title="歌詞位置">
+                        <i class="material-icons">vertical_align_center</i>
+                    </label>
                     <select id="position" onchange="updatePreview()">
-                        <option value="flex-start">上方 (T)</option>
-                        <option value="center" selected>中間 (M)</option>
+                        <option value="flex-start"selected>上方 (T)</option>
+                        <option value="center" >中間 (M)</option>
                         <option value="flex-end">下方 (B)</option>
                     </select>
-                </div>
-                <div class="control-group">
-                    <label>比例:</label>
+                    <label title="比例">
+                        <i class="material-icons">aspect_ratio</i>
+                    </label>
                     <select id="aspectRatio" onchange="updatePreview()">
                         <option value="4:3">4:3</option>
                         <option value="16:9" selected>16:9</option>
                     </select>
-                </div>
-                <div class="control-group">
-                    <label>遮罩:</label>
-                    <input type="range" min="0" max="1" step="0.1" value="0.3" id="maskOpacity" onchange="updatePreview()">
-                </div>
-                <div class="control-group">
-                    <label>
-                        <input type="checkbox" id="showTextBg" onchange="updatePreview()">
-                        文字底色
+                
+                    <label title="遮罩">
+                        <i class="material-icons">opacity</i>
                     </label>
-                </div>
-                <div class="control-group">
-                    <label>
+                    <input type="range" min="0" max="1" step="0.1" value="0.3" id="maskOpacity" onchange="updatePreview()">
+                
+                    <label title="文字底色">
+                        <i class="material-icons">format_color_fill</i>
+                        <input type="checkbox" id="showTextBg" onchange="updatePreview()">
+                    </label>
+                
+                    <label title="歌曲資訊">
+                        <i class="material-icons">info</i>
                         <input type="checkbox" id="showInfo" checked onchange="updatePreview()">
-                        顯示右下角資訊
                     </label>
                 </div>
             </div>
@@ -900,22 +913,6 @@
         }
         return gk_fileData[filename] || "";
         }
-    </script>
-        <script>
-        function adjustContainerMargin() {
-            const navbar = document.querySelector('.navbar');
-            const container = document.querySelector('.container');
-            if (navbar && container) {
-                const navbarHeight = navbar.offsetHeight;
-                container.style.marginTop = `${navbarHeight}px`;
-            }
-        }
-    
-        // 初始調整
-        adjustContainerMargin();
-    
-        // 監聽視窗大小改變事件
-        window.addEventListener('resize', adjustContainerMargin);
     </script>
     <script>
         const messages = {
@@ -1016,22 +1013,44 @@
         function switchLanguage(lang) {
             currentLang = lang;
             document.title = messages[lang].title;
-            document.querySelector('.header h1').textContent = messages[lang].title;
-            
+            document.querySelector('.navbar h1').textContent = messages[lang].title;
+
+            // 更新 control-group label 的 title
             const labels = document.querySelectorAll('.control-group label');
-            labels[0].textContent = messages[lang].lyricsSize;
-            labels[1].textContent = messages[lang].lyricsLineHeight;
-            labels[2].textContent = messages[lang].lyricsPosition;
-            labels[3].textContent = messages[lang].aspectRatio;
-            labels[4].textContent = messages[lang].mask;
-            labels[5].lastChild.textContent = messages[lang].textBg;
-            labels[6].lastChild.textContent = messages[lang].showInfo;
-            
+            const labelTitles = [
+                messages[lang].lyricsSize,
+                messages[lang].lyricsLineHeight,
+                messages[lang].lyricsPosition,
+                messages[lang].aspectRatio,
+                messages[lang].mask,
+                messages[lang].textBg,
+                messages[lang].showInfo
+            ];
+            labels.forEach((label, idx) => {
+                label.title = labelTitles[idx];
+                // 僅對有checkbox的label更新旁邊的文字（避免英文模式下還有中文字）
+                if (idx === 5 || idx === 6) {
+                    // 只保留icon和checkbox，不顯示label文字
+                    // 移除label內的非icon/checkbox節點
+                    Array.from(label.childNodes).forEach(node => {
+                        if (
+                            node.nodeType === Node.TEXT_NODE ||
+                            (node.nodeType === Node.ELEMENT_NODE &&
+                             node.tagName !== 'I' &&
+                             node.tagName !== 'INPUT'
+                            )
+                        ) {
+                            label.removeChild(node);
+                        }
+                    });
+                }
+            });
+
             const positionSelect = document.getElementById('position');
             positionSelect.options[0].text = messages[lang].positionTop;
             positionSelect.options[1].text = messages[lang].positionMiddle;
             positionSelect.options[2].text = messages[lang].positionBottom;
-            
+
             updateSongsContainer();
             updatePreview();
         }
@@ -1377,12 +1396,9 @@
                 }
 
                 const uploadButtonContent = song.background
-                    ? `
-                        <img src="${song.background}" class="thumbnail" alt="Background thumbnail" onclick="showImageMenu(event, ${index})">
-                    `
-                    : `
-                        <i class="material-icons upload-icon">add_photo_alternate</i>
-                    `;
+                    ? `<img src="${song.background}" class="thumbnail" alt="Background thumbnail" onclick="showImageMenu(event, ${index})">`
+                    : `<i class="material-icons upload-icon">add_photo_alternate</i>`;
+
 
                 songCard.innerHTML = `
                     <div class="song-input-container">
@@ -1428,9 +1444,6 @@
 
         function handleTextareaKeydown(event, textarea, songIndex) {
             const tagMenu = document.getElementById('tagMenu');
-            if (event.key === 'Tab' && tagMenu.style.display === 'block') {
-                event.preventDefault();
-            }
             if (tagMenu.style.display === 'block') {
                 switch (event.key) {
                     case 'ArrowUp':
@@ -1448,18 +1461,21 @@
                         const selectedTag = document.querySelectorAll('.tag-menu-item')[selectedTagIndex].textContent;
                         insertTag(selectedTag, songIndex);
                         break;
+                    case 'Escape':
+                        hideTagMenu();
+                        break;
                 }
             }
         }
 
-             function handleTextareaInput(event, textarea, songIndex) {
+        function handleTextareaInput(event, textarea, songIndex) {
             const curPos = textarea.selectionStart;
             const text = textarea.value;
         
             lastCursorPosition = curPos;
         
-            // 只有在輸入兩個 `#` 時才顯示 `tagMenu`
-            if (textarea.value.substr(curPos - 2, 2) === '##') {
+            // 只有在輸入一個 `#` 時才顯示 `tagMenu`
+            if (textarea.value.substr(curPos - 1, 1) === '#' && (curPos === 1 || textarea.value[curPos - 2] === '\n')) {
                 showTagMenu(textarea, songIndex);
             } else {
                 hideTagMenu();
