@@ -809,25 +809,30 @@
 
         <div class="preview-section">
             <div class="card">
-                <div class="control-group-inline">
+                <div class="control-group">
                     <label title="歌詞大小">
                         <i class="material-icons">format_size</i>
                     </label>
-                    <input type="number" min="12" max="72" value="48" id="lyricsFontSize" onchange="updatePreview()">
-                
+                    <input type="number" min="12" max="72" value="54" id="lyricsFontSize" onchange="updatePreview()">
+                    <span>pt</span>
+                </div>
+                <div class="control-group">
                     <label title="歌詞行距">
                         <i class="material-icons">format_line_spacing</i>
                     </label>
                     <input type="number" min="1" max="2" value="1.2" id="lyricsLineHeight" step="0.1" onchange="updatePreview()">
-                
+                </div>
+                <div class="control-group">
                     <label title="歌詞位置">
                         <i class="material-icons">vertical_align_center</i>
                     </label>
                     <select id="position" onchange="updatePreview()">
-                        <option value="flex-start"selected>上方 (T)</option>
-                        <option value="center" >中間 (M)</option>
+                        <option value="flex-start">上方 (T)</option>
+                        <option value="center" selected>中間 (M)</option>
                         <option value="flex-end">下方 (B)</option>
                     </select>
+                </div>
+                <div class="control-group">
                     <label title="比例">
                         <i class="material-icons">aspect_ratio</i>
                     </label>
@@ -835,18 +840,21 @@
                         <option value="4:3">4:3</option>
                         <option value="16:9" selected>16:9</option>
                     </select>
-                
+                </div>
+                <div class="control-group">
                     <label title="遮罩">
                         <i class="material-icons">opacity</i>
                     </label>
                     <input type="range" min="0" max="1" step="0.1" value="0.3" id="maskOpacity" onchange="updatePreview()">
-                
+                </div>
+                <div class="control-group">
                     <label title="文字底色">
                         <i class="material-icons">format_color_fill</i>
                         <input type="checkbox" id="showTextBg" onchange="updatePreview()">
                     </label>
-                
-                    <label title="歌曲資訊">
+                </div>
+                <div class="control-group">
+                    <label title="顯示右下角資訊">
                         <i class="material-icons">info</i>
                         <input type="checkbox" id="showInfo" checked onchange="updatePreview()">
                     </label>
