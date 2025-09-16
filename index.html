@@ -783,12 +783,61 @@
                 font-size: 12px;
             }
         }
+
+        /* ======= Footer Links ======= */
+        .site-footer{
+          margin: 28px auto 0;
+          max-width: 50vw;
+          min-width: 600px;
+          padding: 16px 0 32px;
+        }
+        .footer-inner{
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0,1fr));
+          gap: 10px;
+        }
+        .footer-link{
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          text-decoration: none;
+          border-radius: 10px;
+          padding: 10px 14px;
+          border: 1px solid var(--color-border);
+          background: rgba(249,250,251,0.8);
+          box-shadow: 0 2px 8px rgba(76,175,80,0.03);
+          transition: transform .2s, box-shadow .2s, background-color .2s;
+        }
+        .footer-link:hover{
+          transform: translateY(-1px);
+          background: var(--color-secondary-bg);
+          box-shadow: 0 6px 18px rgba(76,175,80,0.12);
+        }
+        .footer-link .material-icons{
+          font-size: 20px;
+          opacity: .9;
+        }
+        .footer-note{
+          text-align: center;
+          font-size: 12px;
+          color: var(--color-text);
+          opacity: .8;
+          margin-top: 8px;
+        }
+        @media (max-width: 767px){
+          .site-footer{
+            max-width: 98vw;
+            min-width: unset;
+            padding: 8px 0 24px;
+          }
+        }
 </style>
 </head>
 <body>
     <div class="navbar">
         <div>
-            <h1>LySlide</h1>
+            <h1>Project-Lyrics</h1>
             <h2>From Lyrics to Slides, Effortlessly.</h2>
         </div>
         <div class="lang-switch">
@@ -879,6 +928,26 @@
         </div>
     </div>
 
+    <!-- ======= 底部連結列 ======= -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <a id="lnkSurvey" class="footer-link" href="#" target="_blank" rel="noopener">
+          <i class="material-icons">assignment</i>
+          <span id="txtSurvey">問卷</span>
+        </a>
+        <a id="lnkDonate" class="footer-link" href="#" target="_blank" rel="noopener">
+          <i class="material-icons">volunteer_activism</i>
+          <span id="txtDonate">奉獻</span>
+        </a>
+        <a id="lnkTutorial" class="footer-link" href="#" target="_blank" rel="noopener">
+          <i class="material-icons">school</i>
+          <span id="txtTutorial">教學</span>
+        </a>
+      </div>
+      <div class="footer-note"> © 2025 Developed and maintained by Allen Liu(Beta Ver 1.6.2)</div>
+      <div class="footer-note">If you have any experience in full stack engineering and would like to bless churches through this project, please feel free to contact me.</div>
+    </footer>
+
     <!-- 標籤選單 (隱藏) -->
     <div id="tagMenu" class="tag-menu"></div>
 
@@ -922,6 +991,16 @@
         return gk_fileData[filename] || "";
         }
     </script>
+
+    <!-- 自訂連結設定區（把你的 URL 貼在這裡） -->
+    <script>
+      const CUSTOM_LINKS = {
+        survey:  'https://docs.google.com/forms/d/e/1FAIpQLSfLiqWkvvwtZRBwhggQIeTNKUOU6JnA6Mp_OE4A3rhaExcu_Q/viewform?usp=sharing&ouid=105550716151776959252',   // ← 問卷連結
+        donate:  'https://buymeacoffee.com/Allenliuuu',   // ← 奉獻連結
+        tutorial:'https://youtu.be/FeIRxaw5Mu0'  // ← 教學連結
+      };
+    </script>
+
     <script>
         const messages = {
             zh: {
@@ -962,7 +1041,11 @@
                 moveUp: "上移",
                 moveDown: "下移",
                 replaceImage: "替換",
-                deleteImage: "刪除"
+                deleteImage: "刪除",
+                /* footer labels */
+                survey: "問卷",
+                donate: "奉獻",
+                tutorial: "教學"
             },
             en: {
                 title: "LySlide",
@@ -1002,9 +1085,39 @@
                 moveUp: "Move Up",
                 moveDown: "Move Down",
                 replaceImage: "Replace",
-                deleteImage: "Delete"
+                deleteImage: "Delete",
+                /* footer labels */
+                survey: "Survey",
+                donate: "Donate",
+                tutorial: "Tutorial"
             }
         };
+
+        /* ===== 底部連結：套用 URL 與文字 ===== */
+        function applyCustomLinks(){
+          const map = {
+            survey: document.getElementById('lnkSurvey'),
+            donate: document.getElementById('lnkDonate'),
+            tutorial: document.getElementById('lnkTutorial')
+          };
+          Object.entries(map).forEach(([key, el])=>{
+            if(!el) return;
+            const url = CUSTOM_LINKS[key] || '#';
+            el.href = url;
+            el.style.pointerEvents = url && url !== '#' ? 'auto' : 'none';
+            el.style.opacity = url && url !== '#' ? '1' : '0.6';
+            el.title = url && url !== '#' ? url : (currentLang==='en'?'Please set link in CUSTOM_LINKS':'請於 CUSTOM_LINKS 設定連結');
+          });
+        }
+        function refreshFooterLabels(){
+          const t = messages[currentLang];
+          const survey = document.getElementById('txtSurvey');
+          const donate = document.getElementById('txtDonate');
+          const tutorial = document.getElementById('txtTutorial');
+          if(survey) survey.textContent = t.survey;
+          if(donate) donate.textContent = t.donate;
+          if(tutorial) tutorial.textContent = t.tutorial;
+        }
 
         let currentLang = 'en';
         let songs = [{ title: '', lyrics: '', background: null, isParagraphMode: false, paragraphs: [] }];
@@ -1038,8 +1151,6 @@
                 label.title = labelTitles[idx];
                 // 僅對有checkbox的label更新旁邊的文字（避免英文模式下還有中文字）
                 if (idx === 5 || idx === 6) {
-                    // 只保留icon和checkbox，不顯示label文字
-                    // 移除label內的非icon/checkbox節點
                     Array.from(label.childNodes).forEach(node => {
                         if (
                             node.nodeType === Node.TEXT_NODE ||
@@ -1061,11 +1172,15 @@
 
             updateSongsContainer();
             updatePreview();
+
+            /* 更新底部連結文字與提示 */
+            refreshFooterLabels();
+            applyCustomLinks();
         }
 
         function parseLyrics(lyrics) {
             if (!lyrics || lyrics.trim() === '') {
-                return [{ type: 'Empty', content: '' }]; // 預設返回一個空的幻燈片
+                return [{ type: 'Empty', content: '' }];
             }
 
             const sections = [];
@@ -1490,49 +1605,48 @@
             }
         }
 
-                       function showTagMenu(textarea, songIndex) {
-                    const tagMenu = document.getElementById('tagMenu');
-                    selectedTagIndex = 0;
-                
-                    tagMenu.innerHTML = `
-                        <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagVerse}', ${songIndex})">${messages[currentLang].tagVerse}</div>
-                        <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagChorus}', ${songIndex})">${messages[currentLang].tagChorus}</div>
-                        <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagBridge}', ${songIndex})">${messages[currentLang].tagBridge}</div>
-                        <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagInterlude}', ${songIndex})">${messages[currentLang].tagInterlude}</div>
-                        <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagOutro}', ${songIndex})">${messages[currentLang].tagOutro}</div>
-                    `;
-                
-                    const rect = textarea.getBoundingClientRect();
-                    const scrollTop = textarea.scrollTop;
-                    const scrollLeft = textarea.scrollLeft;
-                
-                    // 計算光標位置
-                    const textBeforeCursor = textarea.value.substring(0, textarea.selectionStart);
-                    const lines = textBeforeCursor.split('\n');
-                    const lineHeight = parseFloat(window.getComputedStyle(textarea).lineHeight) || 20; // 預設行高為 20px
-                    const fontSize = parseFloat(window.getComputedStyle(textarea).fontSize) || 16; // 預設字體大小為 16px
-                
-                    const cursorX = rect.left + window.scrollX + scrollLeft + (lines[lines.length - 1].length * fontSize * 0.6); // 粗略估算每字寬度
-                    const cursorY = rect.top + window.scrollY + scrollTop + (lines.length - 1) * lineHeight;
-                
-                    // 確保選單不超出視窗範圍
-                    const viewportHeight = window.innerHeight;
-                    const menuHeight = tagMenu.offsetHeight;
-                
-                    let topPosition = cursorY + lineHeight + 5; // 光標下方
-                    if (topPosition + menuHeight > viewportHeight + window.scrollY) {
-                        topPosition = cursorY - menuHeight - 5; // 如果超出範圍，顯示在光標上方
-                    }
-                
-                    tagMenu.style.top = `${topPosition}px`;
-                    tagMenu.style.left = `${cursorX}px`;
-                    tagMenu.style.display = 'block';
-                
-                    updateTagMenuSelection();
-                    document.addEventListener('click', hideTagMenuOnClickOutside);
-                
-                    activeTextarea = textarea;
-                }
+        function showTagMenu(textarea, songIndex) {
+            const tagMenu = document.getElementById('tagMenu');
+            selectedTagIndex = 0;
+        
+            tagMenu.innerHTML = `
+                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagVerse}', ${songIndex})">${messages[currentLang].tagVerse}</div>
+                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagChorus}', ${songIndex})">${messages[currentLang].tagChorus}</div>
+                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagBridge}', ${songIndex})">${messages[currentLang].tagBridge}</div>
+                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagInterlude}', ${songIndex})">${messages[currentLang].tagInterlude}</div>
+                <div class="tag-menu-item" onclick="insertTag('${messages[currentLang].tagOutro}', ${songIndex})">${messages[currentLang].tagOutro}</div>
+            `;
+        
+            const rect = textarea.getBoundingClientRect();
+            const scrollTop = textarea.scrollTop;
+            const scrollLeft = textarea.scrollLeft;
+        
+            // 計算光標位置
+            const textBeforeCursor = textarea.value.substring(0, textarea.selectionStart);
+            const lines = textBeforeCursor.split('\n');
+            const lineHeight = parseFloat(window.getComputedStyle(textarea).lineHeight) || 20;
+            const fontSize = parseFloat(window.getComputedStyle(textarea).fontSize) || 16;
+        
+            const cursorX = rect.left + window.scrollX + scrollLeft + (lines[lines.length - 1].length * fontSize * 0.6);
+            const cursorY = rect.top + window.scrollY + scrollTop + (lines.length - 1) * lineHeight;
+        
+            const viewportHeight = window.innerHeight;
+            const menuHeight = tagMenu.offsetHeight;
+        
+            let topPosition = cursorY + lineHeight + 5;
+            if (topPosition + menuHeight > viewportHeight + window.scrollY) {
+                topPosition = cursorY - menuHeight - 5;
+            }
+        
+            tagMenu.style.top = `${topPosition}px`;
+            tagMenu.style.left = `${cursorX}px`;
+            tagMenu.style.display = 'block';
+        
+            updateTagMenuSelection();
+            document.addEventListener('click', hideTagMenuOnClickOutside);
+        
+            activeTextarea = textarea;
+        }
 
         function updateTagMenuSelection() {
             const items = document.querySelectorAll('.tag-menu-item');
@@ -1555,7 +1669,7 @@
             selectedTagIndex = 0;
         }
 
-                function insertTag(tagName, songIndex) {
+        function insertTag(tagName, songIndex) {
             if (!activeTextarea) return;
             
             const curPos = lastCursorPosition;
@@ -1878,7 +1992,7 @@
                         const formattedLines = lines.map(line => ({
                             text: line,
                             options: {
-                                fontSize: lyricsFontSize, // Use input directly as points
+                                fontSize: lyricsFontSize,
                                 color: 'FFFFFF',
                                 bold: true,
                                 breakLine: true
@@ -2019,6 +2133,8 @@
         // Initial render
         updateSongsContainer();
         updatePreview();
+        refreshFooterLabels();
+        applyCustomLinks();
     </script>
 </body>
 </html>
